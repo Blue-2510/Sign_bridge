@@ -1,9 +1,19 @@
 // ============================================================
 // SIGNBRIDGE AI
 // FRONTEND APPLICATION
+// MEDIAPIPE + FLASK + RANDOM FOREST
+// ============================================================
+
+
+// ============================================================
+// CONFIGURATION
 // ============================================================
 
 const API_URL = "http://127.0.0.1:5000";
+
+const STABLE_FRAMES = 12;
+const MIN_CONFIDENCE = 0.70;
+const COOLDOWN = 1.2;
 
 
 // ============================================================
@@ -22,6 +32,10 @@ let canvasElement = null;
 
 let canvasContext = null;
 
+let hands = null;
+
+let mediaPipeReady = false;
+
 let lastSign = null;
 
 let stableCount = 0;
@@ -30,11 +44,9 @@ let lastAddedSign = null;
 
 let lastAddedTime = 0;
 
-const STABLE_FRAMES = 12;
+let lastPredictionTime = 0;
 
-const MIN_CONFIDENCE = 0.70;
-
-const COOLDOWN = 1.2;
+let predictionBusy = false;
 
 
 // ============================================================
@@ -50,22 +62,156 @@ let sentence = [];
 
 function openTranslator() {
 
-    document
-        .getElementById("translator")
-        .scrollIntoView({
+    const translator =
+        document.getElementById("translator");
+
+    if (translator) {
+
+        translator.scrollIntoView({
             behavior: "smooth"
         });
+
+    }
 
 }
 
 
 function openLearning() {
 
-    document
-        .getElementById("learning")
-        .scrollIntoView({
+    const learning =
+        document.getElementById("learning");
+
+    if (learning) {
+
+        learning.scrollIntoView({
             behavior: "smooth"
         });
+
+    }
+
+}
+
+
+// ============================================================
+// INITIALIZE MEDIAPIPE
+// ============================================================
+
+function initializeMediaPipe() {
+
+    console.log("======================================");
+    console.log("Initializing MediaPipe Hands...");
+    console.log("======================================");
+
+
+    if (typeof Hands === "undefined") {
+
+        console.error(
+            "❌ MediaPipe Hands library was NOT loaded."
+        );
+
+        mediaPipeReady = false;
+
+        updateAIStatus(false);
+
+        alert(
+            "MediaPipe could not be loaded.\n\n" +
+            "Please make sure you are running the website using Live Server " +
+            "and that your internet connection is working."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        hands = new Hands({
+
+            locateFile: function(file) {
+
+                return (
+                    "https://cdn.jsdelivr.net/npm/" +
+                    "@mediapipe/hands/" +
+                    file
+                );
+
+            }
+
+        });
+
+
+        hands.setOptions({
+
+            maxNumHands: 1,
+
+            modelComplexity: 1,
+
+            minDetectionConfidence: 0.5,
+
+            minTrackingConfidence: 0.5
+
+        });
+
+
+        hands.onResults(
+            onMediaPipeResults
+        );
+
+
+        mediaPipeReady = true;
+
+        updateAIStatus(true);
+
+
+        console.log(
+            "✅ MediaPipe Hands initialized successfully!"
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "❌ MediaPipe initialization error:",
+            error
+        );
+
+        mediaPipeReady = false;
+
+        updateAIStatus(false);
+
+    }
+
+}
+
+
+// ============================================================
+// UPDATE AI STATUS
+// ============================================================
+
+function updateAIStatus(ready) {
+
+    const aiLive =
+        document.querySelector(".ai-live");
+
+    if (aiLive) {
+
+        if (ready) {
+
+            aiLive.innerText = "● LIVE";
+
+            aiLive.style.color = "#22c55e";
+
+        }
+        else {
+
+            aiLive.innerText = "● OFFLINE";
+
+            aiLive.style.color = "#ef4444";
+
+        }
+
+    }
 
 }
 
@@ -76,12 +222,30 @@ function openLearning() {
 
 async function startCamera() {
 
+    console.log(
+        "Starting camera..."
+    );
+
+
+    if (!mediaPipeReady) {
+
+        alert(
+            "MediaPipe is not ready yet.\n\n" +
+            "Please wait a moment and try again."
+        );
+
+        return;
+
+    }
+
+
     try {
 
         videoElement =
             document.getElementById(
                 "cameraVideo"
             );
+
 
         canvasElement =
             document.getElementById(
@@ -92,20 +256,44 @@ async function startCamera() {
         if (!videoElement) {
 
             alert(
-                "Camera element not found."
+                "Camera video element not found."
             );
 
             return;
+
         }
+
+
+        if (!canvasElement) {
+
+            console.error(
+                "Canvas element not found."
+            );
+
+            return;
+
+        }
+
+
+        canvasContext =
+            canvasElement.getContext("2d");
 
 
         cameraStream =
             await navigator.mediaDevices.getUserMedia({
 
                 video: {
-                    width: 640,
-                    height: 480,
+
+                    width: {
+                        ideal: 640
+                    },
+
+                    height: {
+                        ideal: 480
+                    },
+
                     facingMode: "user"
+
                 },
 
                 audio: false
@@ -120,27 +308,31 @@ async function startCamera() {
         await videoElement.play();
 
 
+        canvasElement.width =
+            videoElement.videoWidth || 640;
+
+        canvasElement.height =
+            videoElement.videoHeight || 480;
+
+
         cameraRunning = true;
 
 
-        updateCameraUI(
-            true
-        );
+        updateCameraUI(true);
 
 
         console.log(
-            "✅ Camera started"
+            "✅ Camera started successfully."
         );
 
 
-        // Start prediction loop
         startPredictionLoop();
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
-            "Camera error:",
+            "❌ Camera error:",
             error
         );
 
@@ -161,19 +353,24 @@ async function startCamera() {
 
 function stopCamera() {
 
+    cameraRunning = false;
+
+    predictionRunning = false;
+
+
     if (cameraStream) {
 
         cameraStream
             .getTracks()
-            .forEach(
-                track => track.stop()
-            );
+            .forEach(function(track) {
+
+                track.stop();
+
+            });
 
         cameraStream = null;
+
     }
-
-
-    cameraRunning = false;
 
 
     if (videoElement) {
@@ -183,9 +380,7 @@ function stopCamera() {
     }
 
 
-    updateCameraUI(
-        false
-    );
+    updateCameraUI(false);
 
 
     console.log(
@@ -199,24 +394,25 @@ function stopCamera() {
 // CAMERA UI
 // ============================================================
 
-function updateCameraUI(
-    running
-) {
+function updateCameraUI(running) {
 
     const placeholder =
         document.getElementById(
             "cameraPlaceholder"
         );
 
+
     const video =
         document.getElementById(
             "cameraVideo"
         );
 
+
     const startButton =
         document.getElementById(
             "startCameraButton"
         );
+
 
     const status =
         document.getElementById(
@@ -263,7 +459,8 @@ function updateCameraUI(
 
         }
 
-    } else {
+    }
+    else {
 
         if (placeholder) {
 
@@ -297,6 +494,9 @@ function updateCameraUI(
             status.innerText =
                 "● Ready";
 
+            status.style.color =
+                "";
+
         }
 
     }
@@ -305,7 +505,7 @@ function updateCameraUI(
 
 
 // ============================================================
-// PREDICTION LOOP
+// START PREDICTION LOOP
 // ============================================================
 
 function startPredictionLoop() {
@@ -318,6 +518,11 @@ function startPredictionLoop() {
 
 
     predictionRunning = true;
+
+
+    console.log(
+        "✅ Prediction loop started."
+    );
 
 
     predictionFrame();
@@ -340,17 +545,43 @@ async function predictionFrame() {
     }
 
 
+    if (
+        !mediaPipeReady ||
+        !hands
+    ) {
+
+        console.warn(
+            "MediaPipe not ready."
+        );
+
+        setTimeout(
+            predictionFrame,
+            200
+        );
+
+        return;
+
+    }
+
+
     try {
 
-        // We will connect MediaPipe here
-        // in the next part.
+        if (
+            videoElement &&
+            videoElement.readyState >= 2
+        ) {
 
-        // For now, keep the loop active.
+            await hands.send({
+                image: videoElement
+            });
 
-    } catch (error) {
+        }
+
+    }
+    catch (error) {
 
         console.error(
-            "Prediction error:",
+            "❌ MediaPipe frame error:",
             error
         );
 
@@ -366,7 +597,492 @@ async function predictionFrame() {
 
 
 // ============================================================
-// UPDATE SIGN
+// MEDIAPIPE RESULTS
+// ============================================================
+
+function onMediaPipeResults(results) {
+
+    if (!cameraRunning) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // NO HAND DETECTED
+    // --------------------------------------------------------
+
+    if (
+        !results.multiHandLandmarks ||
+        results.multiHandLandmarks.length === 0
+    ) {
+
+        updateNoHand();
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // FIRST HAND
+    // --------------------------------------------------------
+
+    const landmarks =
+        results.multiHandLandmarks[0];
+
+
+    if (!landmarks) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // DRAW LANDMARKS
+    // --------------------------------------------------------
+
+    drawHandLandmarks(
+        results
+    );
+
+
+    // --------------------------------------------------------
+    // CREATE 63 FEATURES
+    // --------------------------------------------------------
+
+    const features =
+        extractFeatures(
+            landmarks
+        );
+
+
+    if (!features) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // SEND TO FLASK
+    // --------------------------------------------------------
+
+    sendPrediction(
+        features
+    );
+
+}
+
+
+// ============================================================
+// EXTRACT 63 FEATURES
+// ============================================================
+
+function extractFeatures(landmarks) {
+
+    if (
+        !landmarks ||
+        landmarks.length !== 21
+    ) {
+
+        return null;
+
+    }
+
+
+    const features = [];
+
+
+    for (
+        let i = 0;
+        i < landmarks.length;
+        i++
+    ) {
+
+        features.push(
+            Number(landmarks[i].x)
+        );
+
+        features.push(
+            Number(landmarks[i].y)
+        );
+
+        features.push(
+            Number(landmarks[i].z)
+        );
+
+    }
+
+
+    if (features.length !== 63) {
+
+        console.error(
+            "Wrong feature count:",
+            features.length
+        );
+
+        return null;
+
+    }
+
+
+    return features;
+
+}
+
+
+// ============================================================
+// SEND FEATURES TO FLASK
+// ============================================================
+
+async function sendPrediction(features) {
+
+    // Prevent multiple simultaneous requests
+
+    if (predictionBusy) {
+
+        return;
+
+    }
+
+
+    // Limit requests
+
+    const now =
+        Date.now();
+
+
+    if (
+        now -
+        lastPredictionTime
+        <
+        150
+    ) {
+
+        return;
+
+    }
+
+
+    lastPredictionTime =
+        now;
+
+
+    predictionBusy = true;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/predict`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        features:
+                            features
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            console.error(
+                "Backend prediction error:",
+                data
+            );
+
+            predictionBusy = false;
+
+            return;
+
+        }
+
+
+        if (
+            data.status === "success"
+        ) {
+
+            console.log(
+                "Prediction:",
+                data.sign,
+                "Confidence:",
+                data.confidence
+            );
+
+
+            updatePrediction(
+                data.sign,
+                Number(data.confidence)
+            );
+
+        }
+        else {
+
+            console.error(
+                "Prediction failed:",
+                data
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "❌ Cannot connect to Flask:",
+            error
+        );
+
+    }
+
+
+    predictionBusy = false;
+
+}
+
+
+// ============================================================
+// DRAW HAND LANDMARKS
+// ============================================================
+
+function drawHandLandmarks(results) {
+
+    if (
+        !canvasElement ||
+        !canvasContext ||
+        !videoElement
+    ) {
+
+        return;
+
+    }
+
+
+    canvasContext.clearRect(
+        0,
+        0,
+        canvasElement.width,
+        canvasElement.height
+    );
+
+
+    if (
+        !results.multiHandLandmarks
+    ) {
+
+        return;
+
+    }
+
+
+    for (
+        const landmarks of
+        results.multiHandLandmarks
+    ) {
+
+        // Draw connections
+
+        const connections = [
+
+            [0, 1],
+            [1, 2],
+            [2, 3],
+            [3, 4],
+
+            [0, 5],
+            [5, 6],
+            [6, 7],
+            [7, 8],
+
+            [0, 9],
+            [9, 10],
+            [10, 11],
+            [11, 12],
+
+            [0, 13],
+            [13, 14],
+            [14, 15],
+            [15, 16],
+
+            [0, 17],
+            [17, 18],
+            [18, 19],
+            [19, 20],
+
+            [5, 9],
+            [9, 13],
+            [13, 17]
+
+        ];
+
+
+        canvasContext.beginPath();
+
+        canvasContext.strokeStyle =
+            "#38bdf8";
+
+        canvasContext.lineWidth =
+            2;
+
+
+        connections.forEach(
+            function(connection) {
+
+                const start =
+                    landmarks[
+                        connection[0]
+                    ];
+
+                const end =
+                    landmarks[
+                        connection[1]
+                    ];
+
+
+                canvasContext.moveTo(
+
+                    start.x *
+                    canvasElement.width,
+
+                    start.y *
+                    canvasElement.height
+
+                );
+
+
+                canvasContext.lineTo(
+
+                    end.x *
+                    canvasElement.width,
+
+                    end.y *
+                    canvasElement.height
+
+                );
+
+            }
+        );
+
+
+        canvasContext.stroke();
+
+
+        // Draw points
+
+        for (
+            const landmark of landmarks
+        ) {
+
+            canvasContext.beginPath();
+
+            canvasContext.arc(
+
+                landmark.x *
+                canvasElement.width,
+
+                landmark.y *
+                canvasElement.height,
+
+                5,
+
+                0,
+
+                2 *
+                Math.PI
+
+            );
+
+
+            canvasContext.fillStyle =
+                "#ffffff";
+
+            canvasContext.fill();
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// NO HAND UPDATE
+// ============================================================
+
+function updateNoHand() {
+
+    const signElement =
+        document.getElementById(
+            "currentSign"
+        );
+
+
+    const confidenceElement =
+        document.getElementById(
+            "confidence"
+        );
+
+
+    const confidenceBar =
+        document.getElementById(
+            "confidenceBar"
+        );
+
+
+    if (signElement) {
+
+        signElement.innerText =
+            "—";
+
+    }
+
+
+    if (confidenceElement) {
+
+        confidenceElement.innerText =
+            "0%";
+
+    }
+
+
+    if (confidenceBar) {
+
+        confidenceBar.style.width =
+            "0%";
+
+    }
+
+
+    stableCount = 0;
+
+    lastSign = null;
+
+}
+
+
+// ============================================================
+// UPDATE PREDICTION
 // ============================================================
 
 function updatePrediction(
@@ -379,10 +1095,12 @@ function updatePrediction(
             "currentSign"
         );
 
+
     const confidenceElement =
         document.getElementById(
             "confidence"
         );
+
 
     const confidenceBar =
         document.getElementById(
@@ -390,22 +1108,36 @@ function updatePrediction(
         );
 
 
+    if (!sign) {
+
+        return;
+
+    }
+
+
     if (signElement) {
 
         signElement.innerText =
-            sign.toUpperCase();
+            String(sign).toUpperCase();
 
     }
 
 
     const percentage =
-        confidence * 100;
+        Math.max(
+            0,
+            Math.min(
+                100,
+                confidence * 100
+            )
+        );
 
 
     if (confidenceElement) {
 
         confidenceElement.innerText =
-            percentage.toFixed(1) + "%";
+            percentage.toFixed(1) +
+            "%";
 
     }
 
@@ -413,7 +1145,8 @@ function updatePrediction(
     if (confidenceBar) {
 
         confidenceBar.style.width =
-            percentage + "%";
+            percentage +
+            "%";
 
     }
 
@@ -450,18 +1183,29 @@ function processStableSign(
 
 
     if (
-        sign === lastSign
+        sign ===
+        lastSign
     ) {
 
         stableCount++;
 
-    } else {
+    }
+    else {
 
-        lastSign = sign;
+        lastSign =
+            sign;
 
-        stableCount = 1;
+        stableCount =
+            1;
 
     }
+
+
+    console.log(
+        "Stable:",
+        sign,
+        stableCount + "/" + STABLE_FRAMES
+    );
 
 
     if (
@@ -473,21 +1217,21 @@ function processStableSign(
             Date.now() / 1000;
 
 
-        if (
-
-            sign !==
-            lastAddedSign
-
+        const canAdd =
+            (
+                sign !==
+                lastAddedSign
+            )
             ||
-
             (
                 now -
                 lastAddedTime
                 >
                 COOLDOWN
-            )
+            );
 
-        ) {
+
+        if (canAdd) {
 
             sentence.push(
                 sign
@@ -506,14 +1250,15 @@ function processStableSign(
 
 
             console.log(
-                "✅ Sign added:",
+                "✅ SIGN ADDED:",
                 sign
             );
 
         }
 
 
-        stableCount = 0;
+        stableCount =
+            0;
 
     }
 
@@ -584,10 +1329,12 @@ function clearTranslation() {
             "currentSign"
         );
 
+
     const confidence =
         document.getElementById(
             "confidence"
         );
+
 
     const bar =
         document.getElementById(
@@ -618,6 +1365,11 @@ function clearTranslation() {
 
     }
 
+
+    console.log(
+        "Translation cleared."
+    );
+
 }
 
 
@@ -628,7 +1380,9 @@ function clearTranslation() {
 function speakTranslation() {
 
     const text =
-        sentence.join(" ").trim();
+        sentence
+            .join(" ")
+            .trim();
 
 
     if (!text) {
@@ -643,7 +1397,7 @@ function speakTranslation() {
 
 
     if (
-        !window.speechSynthesis
+        !("speechSynthesis" in window)
     ) {
 
         alert(
@@ -674,6 +1428,41 @@ function speakTranslation() {
 
     speech.pitch =
         1;
+
+
+    speech.volume =
+        1;
+
+
+    speech.onstart =
+        function() {
+
+            console.log(
+                "🔊 Speech started."
+            );
+
+        };
+
+
+    speech.onend =
+        function() {
+
+            console.log(
+                "🔊 Speech finished."
+            );
+
+        };
+
+
+    speech.onerror =
+        function(error) {
+
+            console.error(
+                "Speech error:",
+                error
+            );
+
+        };
 
 
     window.speechSynthesis.speak(
@@ -718,7 +1507,8 @@ function sendMessage() {
     );
 
 
-    input.value = "";
+    input.value =
+        "";
 
 }
 
@@ -742,17 +1532,60 @@ async function testBackend() {
 
 
         console.log(
-            "Backend response:",
+            "✅ Backend response:",
             data
         );
 
 
         return true;
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
-            "Backend connection failed:",
+            "❌ Backend connection failed:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+// ============================================================
+// TEST MODEL
+// ============================================================
+
+async function testModel() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/model-status`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "✅ Model status:",
+            data
+        );
+
+
+        return data.model_loaded === true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "❌ Model status check failed:",
             error
         );
 
@@ -770,7 +1603,7 @@ async function testBackend() {
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async function() {
 
         console.log(
             "======================================"
@@ -785,11 +1618,30 @@ document.addEventListener(
         );
 
 
-        testBackend();
+        // Test Flask
 
+        await testBackend();
+
+
+        // Test ML model
+
+        await testModel();
+
+
+        // Initialize MediaPipe
+
+        initializeMediaPipe();
+
+
+        // Initial camera UI
 
         updateCameraUI(
             false
+        );
+
+
+        console.log(
+            "SignBridge AI ready."
         );
 
     }

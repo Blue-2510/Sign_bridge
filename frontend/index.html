@@ -10,9 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        SignBridge AI
-    </title>
+    <title>SignBridge AI</title>
 
     <meta
         name="description"
@@ -37,17 +35,13 @@
 
     <div class="nav-container">
 
-        <a
-            href="#home"
-            class="logo"
-        >
+        <a href="#home" class="logo">
 
             <div class="logo-icon">
                 SB
             </div>
 
             <div>
-
                 <span class="logo-title">
                     SignBridge
                 </span>
@@ -55,7 +49,6 @@
                 <span class="logo-ai">
                     AI
                 </span>
-
             </div>
 
         </a>
@@ -413,7 +406,10 @@
 
         <div class="translator-grid">
 
-            <!-- CAMERA -->
+
+            <!-- =================================================
+                 CAMERA
+            ================================================== -->
 
             <div class="translator-card camera-card">
 
@@ -474,6 +470,8 @@
                     </div>
 
 
+                    <!-- CAMERA VIDEO -->
+
                     <video
                         id="cameraVideo"
                         autoplay
@@ -482,8 +480,12 @@
                     ></video>
 
 
+                    <!-- CANVAS USED FOR PROCESSING -->
+
                     <canvas
                         id="cameraCanvas"
+                        width="640"
+                        height="480"
                     ></canvas>
 
                 </div>
@@ -524,7 +526,9 @@
             </div>
 
 
-            <!-- PREDICTION -->
+            <!-- =================================================
+                 PREDICTION
+            ================================================== -->
 
             <div class="translator-card prediction-card">
 
@@ -534,8 +538,11 @@
                         AI PREDICTION
                     </span>
 
-                    <span class="ai-live">
-                        ● LIVE
+                    <span
+                        id="predictionStatus"
+                        class="ai-live"
+                    >
+                        ● OFFLINE
                     </span>
 
                 </div>
@@ -547,12 +554,14 @@
                         CURRENT SIGN
                     </span>
 
+
                     <div
                         id="currentSign"
                         class="current-sign"
                     >
                         —
                     </div>
+
 
                     <div class="confidence-label">
 
@@ -1254,10 +1263,42 @@
 
 
 <!-- =========================================================
-     JAVASCRIPT
+     MEDIAPIPE LIBRARIES
+     
+     IMPORTANT:
+     These must load BEFORE app.js
+========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+    crossorigin="anonymous"
+></script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+    crossorigin="anonymous"
+></script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+    crossorigin="anonymous"
+></script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+    crossorigin="anonymous"
+></script>
+
+
+<!-- =========================================================
+     SIGNBRIDGE AI JAVASCRIPT
 ========================================================= -->
 
 <script src="app.js"></script>
+
 
 </body>
 
