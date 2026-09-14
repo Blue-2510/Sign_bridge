@@ -22,6 +22,42 @@
         href="style.css"
     >
 
+
+<style>
+/* TEXT TO SIGN */
+.text-sign-section { padding: 90px 0; background: #07111f; }
+.text-sign-section .section-container { width: min(1200px, 92%); margin: 0 auto; }
+.text-sign-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:40px; }
+.text-sign-card { background:#0d1b2e; border:1px solid rgba(120,160,200,.18); border-radius:24px; padding:30px; box-shadow:0 20px 50px rgba(0,0,0,.18); }
+.text-sign-card-header { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:20px; }
+.text-sign-card-header h3 { margin:7px 0 0; font-size:22px; }
+.text-sign-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:14px; background:rgba(0,171,228,.12); font-size:24px; }
+.text-sign-input { width:100%; min-height:145px; box-sizing:border-box; resize:vertical; padding:18px; border-radius:16px; border:1px solid rgba(120,160,200,.2); background:#07111f; color:#fff; font:inherit; outline:none; }
+.text-sign-input:focus { border-color:#00abe4; }
+.text-sign-input::placeholder { color:#71839a; }
+.quick-sign-title { margin:20px 0 10px; color:#8da2ba; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+.quick-sign-buttons { display:flex; flex-wrap:wrap; gap:9px; }
+.quick-sign-button { border:1px solid rgba(0,171,228,.35); background:rgba(0,171,228,.08); color:#8edfff; padding:9px 13px; border-radius:10px; cursor:pointer; font-weight:700; }
+.quick-sign-button:hover { background:rgba(0,171,228,.18); }
+.text-sign-actions { display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
+.text-sign-actions button { cursor:pointer; }
+.supported-text-sign { margin-top:22px; padding-top:18px; border-top:1px solid rgba(120,160,200,.15); color:#8da2ba; font-size:13px; display:flex; flex-direction:column; gap:6px; }
+.supported-text-sign strong { color:#dbeafe; }
+.sign-preview { min-height:320px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:18px; background:#07111f; border:1px solid rgba(120,160,200,.15); padding:20px; box-sizing:border-box; }
+.sign-preview img.sign-gif { max-width:100%; max-height:300px; width:auto; height:auto; object-fit:contain; border-radius:14px; }
+.sign-placeholder { text-align:center; color:#71839a; }
+.sign-placeholder span { display:block; font-size:64px; margin-bottom:10px; }
+.sign-placeholder p { margin:0; }
+.sign-preview-description { margin-top:14px; text-align:center; color:#8da2ba; font-size:14px; }
+.current-sign-word { margin-top:15px; text-align:center; color:#fff; font-size:18px; font-weight:800; }
+.text-sign-progress-container { width:100%; height:7px; margin:18px 0; background:#1b2b40; border-radius:10px; overflow:hidden; }
+#textSignProgress { width:0%; height:100%; background:#00abe4; transition:width .3s ease; }
+.text-sign-controls { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+.text-sign-controls button:disabled { opacity:.45; cursor:not-allowed; }
+@media (max-width:900px) { .text-sign-grid { grid-template-columns:1fr; } }
+@media (max-width:600px) { .text-sign-card { padding:20px; } .text-sign-actions { flex-direction:column; } .text-sign-actions button { width:100%; } }
+</style>
+
 </head>
 
 
@@ -62,6 +98,10 @@
 
             <a href="#translator">
                 Translator
+            </a>
+
+            <a href="#text-sign">
+                Text → Sign
             </a>
 
             <a href="#learning">
@@ -675,6 +715,83 @@
 
 </section>
 
+
+
+<!-- =========================================================
+     TEXT TO SIGN
+========================================================= -->
+<section id="text-sign" class="text-sign-section">
+    <div class="section-container">
+        <div class="section-heading">
+            <span class="section-label">TEXT TO SIGN</span>
+            <h2>Convert Text Into Sign Language</h2>
+            <p>Enter text and SignBridge AI will display the corresponding sign animation.</p>
+        </div>
+
+        <div class="text-sign-grid">
+            <div class="text-sign-card">
+                <div class="text-sign-card-header">
+                    <div>
+                        <span class="prediction-small">ENTER TEXT</span>
+                        <h3>Type a Message</h3>
+                    </div>
+                    <span class="text-sign-icon">✍️</span>
+                </div>
+
+                <textarea id="textToSignInput" class="text-sign-input" placeholder="Example: Hello thank you" rows="5"></textarea>
+
+                <div class="quick-sign-title">Quick Signs</div>
+                <div class="quick-sign-buttons">
+                    <button type="button" class="quick-sign-button" data-sign="hello">HELLO</button>
+                    <button type="button" class="quick-sign-button" data-sign="yes">YES</button>
+                    <button type="button" class="quick-sign-button" data-sign="no">NO</button>
+                    <button type="button" class="quick-sign-button" data-sign="help">HELP</button>
+                    <button type="button" class="quick-sign-button" data-sign="thank_you">THANK YOU</button>
+                </div>
+
+                <div class="text-sign-actions">
+                    <button id="textToSignBtn" type="button" class="primary-btn">✋ Translate to Sign</button>
+                    <button id="clearTextSignBtn" type="button" class="secondary-btn">↻ Clear</button>
+                </div>
+
+                <div class="supported-text-sign">
+                    <span>Currently supported:</span>
+                    <strong>HELLO · YES · NO · HELP · THANK YOU</strong>
+                </div>
+            </div>
+
+            <div class="text-sign-card">
+                <div class="text-sign-card-header">
+                    <div>
+                        <span class="prediction-small">SIGN PREVIEW</span>
+                        <h3 id="signPreviewTitle">Sign Preview</h3>
+                    </div>
+                    <span class="text-sign-icon">🤟</span>
+                </div>
+
+                <div id="signPreview" class="sign-preview">
+                    <div class="sign-placeholder">
+                        <span>🤟</span>
+                        <p>Enter text to see the sign</p>
+                    </div>
+                </div>
+
+                <div id="signPreviewDescription" class="sign-preview-description">Your sign animation will appear here.</div>
+                <div id="currentSignWord" class="current-sign-word">No sign selected</div>
+
+                <div class="text-sign-progress-container">
+                    <div id="textSignProgress"></div>
+                </div>
+
+                <div class="text-sign-controls">
+                    <button id="previousTextSignBtn" type="button" class="action-button clear-button">⏮ Previous</button>
+                    <button id="playTextSignBtn" type="button" class="action-button speak-button">▶ Play</button>
+                    <button id="nextTextSignBtn" type="button" class="action-button clear-button">Next ⏭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- =========================================================
      HOW IT WORKS

@@ -2,19 +2,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import os
+import numpy as np
 
 app = Flask(__name__)
 CORS(app)
 
-
-# ============================================================
-# LOAD SIGNBRIDGE AI MODEL
-# ============================================================
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 MODEL_PATH = os.path.join(
-    BASE_DIR,
+    os.path.dirname(__file__),
     "..",
     "ml",
     "models",
@@ -23,162 +17,151 @@ MODEL_PATH = os.path.join(
 
 MODEL_PATH = os.path.abspath(MODEL_PATH)
 
-print("======================================")
-print("       SIGNBRIDGE AI BACKEND")
-print("======================================")
-
-print("Loading model...")
-print("Model path:", MODEL_PATH)
+model = None
 
 try:
     model = joblib.load(MODEL_PATH)
-    print("✅ Model loaded successfully!")
-
+    print("===================================")
+    print("     SIGNBRIDGE AI BACKEND")
+    print("===================================")
+    print("✅ Random Forest model loaded")
+    print("Model path:")
+    print(MODEL_PATH)
 except Exception as e:
-    model = None
-    print("❌ Model loading failed!")
-    print("Error:", e)
+    print("❌ Failed to load model:")
+    print(e)
 
-
-# ============================================================
-# HEALTH CHECK
-# ============================================================
 
 @app.route("/health", methods=["GET"])
 def health():
-
     return jsonify({
         "status": "success",
         "message": "SignBridge AI backend is running"
     })
 
 
-# ============================================================
-# MODEL STATUS
-# ============================================================
-
 @app.route("/model-status", methods=["GET"])
 def model_status():
 
     if model is not None:
-
         return jsonify({
             "status": "success",
-            "model_loaded": True,
-            "message": "Sign recognition model is ready"
+            "message": "Sign recognition model is ready",
+            "model_loaded": True
         })
 
     return jsonify({
         "status": "error",
-        "model_loaded": False,
-        "message": "Model could not be loaded"
-    }), 500
+        "message": "Sign recognition model is not loaded",
+        "model_loaded": False
+    })
 
-
-# ============================================================
-# SIGN PREDICTION
-# ============================================================
 
 @app.route("/predict", methods=["POST"])
 def predict():
 
+    if model is None:
+        return jsonify({
+            "status": "error",
+            "message": "Model is not loaded"
+        }), 500
+
     try:
-
-        if model is None:
-
-            return jsonify({
-                "status": "error",
-                "message": "ML model is not loaded"
-            }), 500
-
 
         data = request.get_json()
 
         if not data:
-
             return jsonify({
                 "status": "error",
                 "message": "No JSON data received"
             }), 400
 
-
         features = data.get("features")
 
-
         if features is None:
-
             return jsonify({
                 "status": "error",
                 "message": "Features are missing"
             }), 400
 
-
-        # Check number of features
         if len(features) != 63:
-
             return jsonify({
                 "status": "error",
                 "message": f"Expected 63 features, received {len(features)}"
             }), 400
 
+        features_array = np.array(
+            features,
+            dtype=float
+        ).reshape(1, -1)
 
-        # Prediction
-        prediction = model.predict(
-            [features]
+        probabilities = model.predict_proba(
+            features_array
         )[0]
 
+        classes = model.classes_
 
-        # Confidence
-        confidence = 0.0
+        best_index = np.argmax(probabilities)
 
-        if hasattr(model, "predict_proba"):
+        predicted_sign = classes[best_index]
 
-            probabilities = model.predict_proba(
-                [features]
-            )[0]
+        confidence = float(
+            probabilities[best_index]
+        )
 
-            confidence = float(
-                max(probabilities)
-            )
+        print(
+            f"Prediction: {predicted_sign} | "
+            f"Confidence: {confidence:.3f}"
+        )
 
+        # --------------------------------------------------
+        # UNKNOWN GESTURE REJECTION
+        # --------------------------------------------------
+
+        UNKNOWN_THRESHOLD = 0.90
+
+        if predicted_sign == "unknown":
+
+            return jsonify({
+                "status": "success",
+                "sign": "unknown",
+                "confidence": confidence
+            })
+
+        if confidence < UNKNOWN_THRESHOLD:
+
+            return jsonify({
+                "status": "success",
+                "sign": "unknown",
+                "confidence": confidence
+            })
+
+        # --------------------------------------------------
+        # VALID SIGN
+        # --------------------------------------------------
 
         return jsonify({
-
             "status": "success",
-
-            "sign": str(prediction),
-
-            "confidence": round(
-                confidence,
-                4
-            )
-
+            "sign": str(predicted_sign),
+            "confidence": confidence
         })
-
 
     except Exception as e:
 
-        print("Prediction error:", e)
+        print("❌ Prediction error:")
+        print(e)
 
         return jsonify({
-
             "status": "error",
-
             "message": str(e)
-
         }), 500
 
 
-# ============================================================
-# RUN SERVER
-# ============================================================
-
 if __name__ == "__main__":
 
-    print("\n======================================")
-    print("SignBridge AI API")
-    print("Server: http://127.0.0.1:5000")
-    print("======================================\n")
+    print("\n===================================")
+    print("Starting Flask server...")
+    print("===================================")
 
     app.run(
         host="127.0.0.1",

@@ -15,7 +15,8 @@ SIGNS = [
     "yes",
     "no",
     "help",
-    "thank_you"
+    "thank_you",
+    "unknown"
 ]
 
 # --------------------------------------------------
@@ -110,27 +111,38 @@ with HandLandmarker.create_from_options(options) as landmarker:
         print(f"Current sign: {sign.upper()}")
         print("------------------------------------")
 
-        input(
-            f"\nGet ready to show the sign '{sign.upper()}'. "
-            "Press ENTER when ready..."
-        )
+    if sign == "unknown":
 
+           input(
+                "\nUNKNOWN gesture collection.\n"
+                "Show random hand gestures that are NOT "
+                "HELLO, YES, NO, HELP, or THANK YOU.\n"
+                "You can change your hand position/shape during collection.\n"
+                "Press ENTER when ready..."
+            )
+
+    else:
+
+            input(
+                 f"\nGet ready to show the sign '{sign.upper()}'. "
+                 "Press ENTER when ready..."
+            )
         # CSV file for this sign
-        csv_path = os.path.join(
+            csv_path = os.path.join(
             dataset_folder,
             f"{sign}.csv"
-        )
+           )
 
-        sample_count = 0
+            sample_count = 0
 
         # Open CSV
-        with open(
+            with open(
             csv_path,
             mode="w",
             newline=""
-        ) as file:
+           ) as file:
 
-            writer = csv.writer(file)
+             writer = csv.writer(file)
 
             # Header
             header = ["label"]
@@ -238,7 +250,7 @@ with HandLandmarker.create_from_options(options) as landmarker:
                     print("\nCollection stopped.")
                     exit()
 
-        print(
+            print(
             f"\n✅ {sign.upper()} completed: "
             f"{sample_count} samples"
         )
