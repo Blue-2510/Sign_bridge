@@ -22,1302 +22,353 @@
         href="style.css"
     >
 
+    <style>
 
-<style>
-/* TEXT TO SIGN */
-.text-sign-section { padding: 90px 0; background: #07111f; }
-.text-sign-section .section-container { width: min(1200px, 92%); margin: 0 auto; }
-.text-sign-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:40px; }
-.text-sign-card { background:#0d1b2e; border:1px solid rgba(120,160,200,.18); border-radius:24px; padding:30px; box-shadow:0 20px 50px rgba(0,0,0,.18); }
-.text-sign-card-header { display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:20px; }
-.text-sign-card-header h3 { margin:7px 0 0; font-size:22px; }
-.text-sign-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:14px; background:rgba(0,171,228,.12); font-size:24px; }
-.text-sign-input { width:100%; min-height:145px; box-sizing:border-box; resize:vertical; padding:18px; border-radius:16px; border:1px solid rgba(120,160,200,.2); background:#07111f; color:#fff; font:inherit; outline:none; }
-.text-sign-input:focus { border-color:#00abe4; }
-.text-sign-input::placeholder { color:#71839a; }
-.quick-sign-title { margin:20px 0 10px; color:#8da2ba; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-.quick-sign-buttons { display:flex; flex-wrap:wrap; gap:9px; }
-.quick-sign-button { border:1px solid rgba(0,171,228,.35); background:rgba(0,171,228,.08); color:#8edfff; padding:9px 13px; border-radius:10px; cursor:pointer; font-weight:700; }
-.quick-sign-button:hover { background:rgba(0,171,228,.18); }
-.text-sign-actions { display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
-.text-sign-actions button { cursor:pointer; }
-.supported-text-sign { margin-top:22px; padding-top:18px; border-top:1px solid rgba(120,160,200,.15); color:#8da2ba; font-size:13px; display:flex; flex-direction:column; gap:6px; }
-.supported-text-sign strong { color:#dbeafe; }
-.sign-preview { min-height:320px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:18px; background:#07111f; border:1px solid rgba(120,160,200,.15); padding:20px; box-sizing:border-box; }
-.sign-preview img.sign-gif { max-width:100%; max-height:300px; width:auto; height:auto; object-fit:contain; border-radius:14px; }
-.sign-placeholder { text-align:center; color:#71839a; }
-.sign-placeholder span { display:block; font-size:64px; margin-bottom:10px; }
-.sign-placeholder p { margin:0; }
-.sign-preview-description { margin-top:14px; text-align:center; color:#8da2ba; font-size:14px; }
-.current-sign-word { margin-top:15px; text-align:center; color:#fff; font-size:18px; font-weight:800; }
-.text-sign-progress-container { width:100%; height:7px; margin:18px 0; background:#1b2b40; border-radius:10px; overflow:hidden; }
-#textSignProgress { width:0%; height:100%; background:#00abe4; transition:width .3s ease; }
-.text-sign-controls { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
-.text-sign-controls button:disabled { opacity:.45; cursor:not-allowed; }
-@media (max-width:900px) { .text-sign-grid { grid-template-columns:1fr; } }
-@media (max-width:600px) { .text-sign-card { padding:20px; } .text-sign-actions { flex-direction:column; } .text-sign-actions button { width:100%; } }
-</style>
+        /* =========================================================
+           TEXT TO SIGN
+        ========================================================= */
+
+        .text-sign-section {
+            padding: 90px 0;
+            background: #07111f;
+        }
+
+        .text-sign-section .section-container {
+            width: min(1200px, 92%);
+            margin: 0 auto;
+        }
+
+        .text-sign-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .text-sign-card {
+            background: #0d1b2e;
+            border: 1px solid rgba(120,160,200,.18);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.18);
+        }
+
+        .text-sign-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .text-sign-card-header h3 {
+            margin: 7px 0 0;
+            font-size: 22px;
+        }
+
+        .text-sign-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(0,171,228,.12);
+            font-size: 24px;
+        }
+
+        .text-sign-input {
+            width: 100%;
+            min-height: 145px;
+            box-sizing: border-box;
+            resize: vertical;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(120,160,200,.2);
+            background: #07111f;
+            color: #fff;
+            font: inherit;
+            outline: none;
+        }
+
+        .text-sign-input:focus {
+            border-color: #00abe4;
+        }
+
+        .text-sign-input::placeholder {
+            color: #71839a;
+        }
+
+        .quick-sign-title {
+            margin: 20px 0 10px;
+            color: #8da2ba;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .quick-sign-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .quick-sign-button {
+            border: 1px solid rgba(0,171,228,.35);
+            background: rgba(0,171,228,.08);
+            color: #8edfff;
+            padding: 9px 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .quick-sign-button:hover {
+            background: rgba(0,171,228,.18);
+        }
+
+        .text-sign-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .text-sign-actions button {
+            cursor: pointer;
+        }
+
+        .supported-text-sign {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(120,160,200,.15);
+            color: #8da2ba;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .supported-text-sign strong {
+            color: #dbeafe;
+        }
+
+        .sign-preview {
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 18px;
+            background: #07111f;
+            border: 1px solid rgba(120,160,200,.15);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .sign-preview img.sign-gif {
+            max-width: 100%;
+            max-height: 300px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+
+        .sign-placeholder {
+            text-align: center;
+            color: #71839a;
+        }
+
+        .sign-placeholder span {
+            display: block;
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .sign-placeholder p {
+            margin: 0;
+        }
+
+        .sign-preview-description {
+            margin-top: 14px;
+            text-align: center;
+            color: #8da2ba;
+            font-size: 14px;
+        }
+
+        .current-sign-word {
+            margin-top: 15px;
+            text-align: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .text-sign-progress-container {
+            width: 100%;
+            height: 7px;
+            margin: 18px 0;
+            background: #1b2b40;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #textSignProgress {
+            width: 0%;
+            height: 100%;
+            background: #00abe4;
+            transition: width .3s ease;
+        }
+
+        .text-sign-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .text-sign-controls button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+
+        /* =========================================================
+           SPEECH TO SIGN
+        ========================================================= */
+
+        .speech-sign-box {
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 20px;
+            background: #07111f;
+            border: 1px solid rgba(120,160,200,.15);
+        }
+
+        .speech-sign-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .speech-sign-header h3 {
+            margin: 7px 0 5px;
+            font-size: 20px;
+        }
+
+        .speech-sign-header p {
+            margin: 0;
+            color: #8da2ba;
+            font-size: 14px;
+        }
+
+        .speech-sign-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(0,171,228,.12);
+            font-size: 23px;
+        }
+
+        .speech-sign-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .speech-sign-controls button {
+            cursor: pointer;
+        }
+
+        .speech-sign-controls button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .speech-status {
+            margin-top: 15px;
+            color: #8edfff;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .speech-transcript {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.025);
+            border: 1px solid rgba(120,160,200,.12);
+        }
+
+        .speech-transcript > div {
+            margin-top: 8px;
+            color: #ffffff;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 25px;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .text-sign-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .text-sign-card {
+                padding: 20px;
+            }
+
+            .text-sign-actions {
+                flex-direction: column;
+            }
+
+            .text-sign-actions button {
+                width: 100%;
+            }
+
+            .speech-sign-controls {
+                flex-direction: column;
+            }
+
+            .speech-sign-controls button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
 
 </head>
 
 
 <body>
 
-<!-- =========================================================
-     NAVIGATION
-========================================================= -->
 
-<header class="navbar">
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================= -->
 
-    <div class="nav-container">
+    <header class="navbar">
 
-        <a href="#home" class="logo">
+        <div class="nav-container">
 
-            <div class="logo-icon">
-                SB
-            </div>
-
-            <div>
-                <span class="logo-title">
-                    SignBridge
-                </span>
-
-                <span class="logo-ai">
-                    AI
-                </span>
-            </div>
-
-        </a>
-
-
-        <nav class="nav-links">
-
-            <a href="#home">
-                Home
-            </a>
-
-            <a href="#translator">
-                Translator
-            </a>
-
-            <a href="#text-sign">
-                Text → Sign
-            </a>
-
-            <a href="#learning">
-                Learning
-            </a>
-
-            <a href="#conversation">
-                Conversation
-            </a>
-
-            <a href="#assistant">
-                AI Assistant
-            </a>
-
-        </nav>
-
-
-        <a
-            href="#translator"
-            class="nav-button"
-        >
-            Start Translating
-        </a>
-
-    </div>
-
-</header>
-
-
-<!-- =========================================================
-     HERO SECTION
-========================================================= -->
-
-<section
-    id="home"
-    class="hero"
->
-
-    <div class="hero-background"></div>
-
-    <div class="hero-container">
-
-        <div class="hero-content">
-
-            <div class="badge">
-
-                <span class="badge-dot"></span>
-
-                AI-Powered Sign Language Platform
-
-            </div>
-
-
-            <h1>
-
-                Breaking Barriers.
-
-                <span>
-                    Building Bridges.
-                </span>
-
-            </h1>
-
-
-            <p class="hero-description">
-
-                SignBridge AI uses artificial intelligence,
-                computer vision and machine learning to
-                translate sign language and make communication
-                more accessible for everyone.
-
-            </p>
-
-
-            <div class="hero-buttons">
-
-                <button
-                    class="primary-btn"
-                    onclick="openTranslator()"
-                >
-
-                    Start Translating
-                    <span>→</span>
-
-                </button>
-
-
-                <button
-                    class="secondary-btn"
-                    onclick="openLearning()"
-                >
-
-                    Learn Sign Language
-
-                </button>
-
-            </div>
-
-
-            <div class="hero-stats">
-
-                <div class="stat">
-
-                    <strong>
-                        5+
-                    </strong>
-
-                    <span>
-                        Signs Supported
-                    </span>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <strong>
-                        AI
-                    </strong>
-
-                    <span>
-                        Powered Recognition
-                    </span>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <strong>
-                        24/7
-                    </strong>
-
-                    <span>
-                        Learning Support
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="hero-visual">
-
-            <div class="floating-card card-one">
-
-                <span class="floating-icon">
-                    ✋
-                </span>
-
-                <div>
-
-                    <strong>
-                        Sign Recognition
-                    </strong>
-
-                    <small>
-                        AI Active
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <div class="hero-orb">
-
-                <div class="orb-inner">
-
-                    <span>
-                        👋
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="floating-card card-two">
-
-                <span class="floating-icon">
-                    🔊
-                </span>
-
-                <div>
-
-                    <strong>
-                        Voice Output
-                    </strong>
-
-                    <small>
-                        Ready
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     FEATURES
-========================================================= -->
-
-<section class="features-section">
-
-    <div class="section-container">
-
-        <div class="section-heading">
-
-            <span class="section-label">
-                POWERFUL FEATURES
-            </span>
-
-            <h2>
-                Communication Without Limits
-            </h2>
-
-            <p>
-                One intelligent platform for translating,
-                learning and communicating through sign language.
-            </p>
-
-        </div>
-
-
-        <div class="feature-grid">
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    ✋
-                </div>
-
-                <h3>
-                    Real-Time Recognition
-                </h3>
-
-                <p>
-                    Detect hand gestures through your webcam
-                    and convert them into text using AI.
-                </p>
-
-            </div>
-
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    🔊
-                </div>
-
-                <h3>
-                    Sign to Speech
-                </h3>
-
-                <p>
-                    Convert recognized signs into text
-                    and spoken audio.
-                </p>
-
-            </div>
-
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    🎓
-                </div>
-
-                <h3>
-                    Learn Sign Language
-                </h3>
-
-                <p>
-                    Learn alphabets, numbers, words and
-                    phrases with interactive practice.
-                </p>
-
-            </div>
-
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    💬
-                </div>
-
-                <h3>
-                    AI Conversation
-                </h3>
-
-                <p>
-                    Communicate naturally using speech,
-                    text and sign language.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     TRANSLATOR
-========================================================= -->
-
-<section
-    id="translator"
-    class="translator-section"
->
-
-    <div class="section-container">
-
-        <div class="section-heading left">
-
-            <span class="section-label">
-                AI TRANSLATOR
-            </span>
-
-            <h2>
-                Sign Language Translator
-            </h2>
-
-            <p>
-                Show a sign to your camera and let
-                SignBridge AI recognize it in real time.
-            </p>
-
-        </div>
-
-
-        <div class="translator-grid">
-
-
-            <!-- =================================================
-                 CAMERA
-            ================================================== -->
-
-            <div class="translator-card camera-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <h3>
-                            Live Camera
-                        </h3>
-
-                        <p>
-                            Position your hand clearly
-                            inside the camera.
-                        </p>
-
-                    </div>
-
-
-                    <div
-                        id="cameraStatus"
-                        class="status"
-                    >
-                        ● Ready
-                    </div>
-
-                </div>
-
-
-                <div class="camera-area">
-
-                    <div
-                        id="cameraPlaceholder"
-                        class="camera-placeholder"
-                    >
-
-                        <div class="camera-icon">
-                            📷
-                        </div>
-
-                        <h3>
-                            Camera Preview
-                        </h3>
-
-                        <p>
-                            Allow camera access to start
-                            real-time sign language recognition.
-                        </p>
-
-                        <button
-                            id="startCameraButton"
-                            class="primary-btn"
-                            onclick="startCamera()"
-                        >
-                            Start Camera
-                        </button>
-
-                    </div>
-
-
-                    <!-- CAMERA VIDEO -->
-
-                    <video
-                        id="cameraVideo"
-                        autoplay
-                        playsinline
-                        muted
-                    ></video>
-
-
-                    <!-- CANVAS USED FOR PROCESSING -->
-
-                    <canvas
-                        id="cameraCanvas"
-                        width="640"
-                        height="480"
-                    ></canvas>
-
-                </div>
-
-
-                <div class="camera-footer">
-
-                    <span>
-                        Supported signs:
-                    </span>
-
-                    <div class="sign-tags">
-
-                        <span>
-                            HELLO
-                        </span>
-
-                        <span>
-                            YES
-                        </span>
-
-                        <span>
-                            NO
-                        </span>
-
-                        <span>
-                            HELP
-                        </span>
-
-                        <span>
-                            THANK YOU
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 PREDICTION
-            ================================================== -->
-
-            <div class="translator-card prediction-card">
-
-                <div class="prediction-header">
-
-                    <span class="section-label">
-                        AI PREDICTION
-                    </span>
-
-                    <span
-                        id="predictionStatus"
-                        class="ai-live"
-                    >
-                        ● OFFLINE
-                    </span>
-
-                </div>
-
-
-                <div class="prediction-display">
-
-                    <span class="prediction-small">
-                        CURRENT SIGN
-                    </span>
-
-
-                    <div
-                        id="currentSign"
-                        class="current-sign"
-                    >
-                        —
-                    </div>
-
-
-                    <div class="confidence-label">
-
-                        <span>
-                            Confidence
-                        </span>
-
-                        <span id="confidence">
-                            0%
-                        </span>
-
-                    </div>
-
-
-                    <div class="confidence-track">
-
-                        <div
-                            id="confidenceBar"
-                            class="confidence-bar"
-                        ></div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="translation-output">
-
-                    <span class="prediction-small">
-                        TRANSLATED TEXT
-                    </span>
-
-
-                    <div
-                        id="translatedText"
-                        class="translated-text"
-                    >
-                        Start signing...
-                    </div>
-
-                </div>
-
-
-                <div class="translator-actions">
-
-                    <button
-                        class="action-button speak-button"
-                        onclick="speakTranslation()"
-                    >
-                        🔊 Speak
-                    </button>
-
-
-                    <button
-                        class="action-button clear-button"
-                        onclick="clearTranslation()"
-                    >
-                        ↻ Clear
-                    </button>
-
-                </div>
-
-
-                <div class="supported-info">
-
-                    <div class="info-row">
-
-                        <span>
-                            AI Model
-                        </span>
-
-                        <strong>
-                            Random Forest
-                        </strong>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span>
-                            Features
-                        </span>
-
-                        <strong>
-                            63 Landmarks
-                        </strong>
-
-                    </div>
-
-
-                    <div class="info-row">
-
-                        <span>
-                            Processing
-                        </span>
-
-                        <strong>
-                            Real-Time
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     TEXT TO SIGN
-========================================================= -->
-<section id="text-sign" class="text-sign-section">
-    <div class="section-container">
-        <div class="section-heading">
-            <span class="section-label">TEXT TO SIGN</span>
-            <h2>Convert Text Into Sign Language</h2>
-            <p>Enter text and SignBridge AI will display the corresponding sign animation.</p>
-        </div>
-
-        <div class="text-sign-grid">
-            <div class="text-sign-card">
-                <div class="text-sign-card-header">
-                    <div>
-                        <span class="prediction-small">ENTER TEXT</span>
-                        <h3>Type a Message</h3>
-                    </div>
-                    <span class="text-sign-icon">✍️</span>
-                </div>
-
-                <textarea id="textToSignInput" class="text-sign-input" placeholder="Example: Hello thank you" rows="5"></textarea>
-
-                <div class="quick-sign-title">Quick Signs</div>
-                <div class="quick-sign-buttons">
-                    <button type="button" class="quick-sign-button" data-sign="hello">HELLO</button>
-                    <button type="button" class="quick-sign-button" data-sign="yes">YES</button>
-                    <button type="button" class="quick-sign-button" data-sign="no">NO</button>
-                    <button type="button" class="quick-sign-button" data-sign="help">HELP</button>
-                    <button type="button" class="quick-sign-button" data-sign="thank_you">THANK YOU</button>
-                </div>
-
-                <div class="text-sign-actions">
-                    <button id="textToSignBtn" type="button" class="primary-btn">✋ Translate to Sign</button>
-                    <button id="clearTextSignBtn" type="button" class="secondary-btn">↻ Clear</button>
-                </div>
-
-                <div class="supported-text-sign">
-                    <span>Currently supported:</span>
-                    <strong>HELLO · YES · NO · HELP · THANK YOU</strong>
-                </div>
-            </div>
-
-            <div class="text-sign-card">
-                <div class="text-sign-card-header">
-                    <div>
-                        <span class="prediction-small">SIGN PREVIEW</span>
-                        <h3 id="signPreviewTitle">Sign Preview</h3>
-                    </div>
-                    <span class="text-sign-icon">🤟</span>
-                </div>
-
-                <div id="signPreview" class="sign-preview">
-                    <div class="sign-placeholder">
-                        <span>🤟</span>
-                        <p>Enter text to see the sign</p>
-                    </div>
-                </div>
-
-                <div id="signPreviewDescription" class="sign-preview-description">Your sign animation will appear here.</div>
-                <div id="currentSignWord" class="current-sign-word">No sign selected</div>
-
-                <div class="text-sign-progress-container">
-                    <div id="textSignProgress"></div>
-                </div>
-
-                <div class="text-sign-controls">
-                    <button id="previousTextSignBtn" type="button" class="action-button clear-button">⏮ Previous</button>
-                    <button id="playTextSignBtn" type="button" class="action-button speak-button">▶ Play</button>
-                    <button id="nextTextSignBtn" type="button" class="action-button clear-button">Next ⏭</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- =========================================================
-     HOW IT WORKS
-========================================================= -->
-
-<section class="process-section">
-
-    <div class="section-container">
-
-        <div class="section-heading">
-
-            <span class="section-label">
-                HOW IT WORKS
-            </span>
-
-            <h2>
-                From Gesture to Communication
-            </h2>
-
-        </div>
-
-
-        <div class="process-grid">
-
-            <div class="process-step">
-
-                <div class="step-number">
-                    01
-                </div>
-
-                <div class="step-icon">
-                    📷
-                </div>
-
-                <h3>
-                    Capture
-                </h3>
-
-                <p>
-                    Webcam captures your hand gesture.
-                </p>
-
-            </div>
-
-
-            <div class="process-line"></div>
-
-
-            <div class="process-step">
-
-                <div class="step-number">
-                    02
-                </div>
-
-                <div class="step-icon">
-                    ✋
-                </div>
-
-                <h3>
-                    Detect
-                </h3>
-
-                <p>
-                    MediaPipe detects hand landmarks.
-                </p>
-
-            </div>
-
-
-            <div class="process-line"></div>
-
-
-            <div class="process-step">
-
-                <div class="step-number">
-                    03
-                </div>
-
-                <div class="step-icon">
-                    🧠
-                </div>
-
-                <h3>
-                    Predict
-                </h3>
-
-                <p>
-                    Machine learning identifies the sign.
-                </p>
-
-            </div>
-
-
-            <div class="process-line"></div>
-
-
-            <div class="process-step">
-
-                <div class="step-number">
-                    04
-                </div>
-
-                <div class="step-icon">
-                    🔊
-                </div>
-
-                <h3>
-                    Communicate
-                </h3>
-
-                <p>
-                    Text can be converted into speech.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     LEARNING MODULE
-========================================================= -->
-
-<section
-    id="learning"
-    class="learning-section"
->
-
-    <div class="section-container">
-
-        <div class="section-heading">
-
-            <span class="section-label">
-                LEARNING MODULE
-            </span>
-
-            <h2>
-                Learn Sign Language
-            </h2>
-
-            <p>
-                Learn common signs through guided lessons
-                and interactive practice.
-            </p>
-
-        </div>
-
-
-        <div class="learning-grid">
-
-            <div class="learning-card">
-
-                <div class="lesson-icon">
-                    🔤
-                </div>
-
-                <span class="lesson-level">
-                    BEGINNER
-                </span>
-
-                <h3>
-                    Alphabets
-                </h3>
-
-                <p>
-                    Learn the basic hand signs for
-                    letters and spelling.
-                </p>
-
-                <button class="outline-button">
-                    Start Lesson →
-                </button>
-
-            </div>
-
-
-            <div class="learning-card">
-
-                <div class="lesson-icon">
-                    🔢
-                </div>
-
-                <span class="lesson-level">
-                    BEGINNER
-                </span>
-
-                <h3>
-                    Numbers
-                </h3>
-
-                <p>
-                    Practice numbers and numerical
-                    expressions in sign language.
-                </p>
-
-                <button class="outline-button">
-                    Start Lesson →
-                </button>
-
-            </div>
-
-
-            <div class="learning-card">
-
-                <div class="lesson-icon">
-                    💬
-                </div>
-
-                <span class="lesson-level">
-                    INTERMEDIATE
-                </span>
-
-                <h3>
-                    Common Words
-                </h3>
-
-                <p>
-                    Learn useful everyday signs such as
-                    hello, yes, no and help.
-                </p>
-
-                <button class="outline-button">
-                    Start Lesson →
-                </button>
-
-            </div>
-
-
-            <div class="learning-card">
-
-                <div class="lesson-icon">
-                    🎯
-                </div>
-
-                <span class="lesson-level">
-                    PRACTICE
-                </span>
-
-                <h3>
-                    AI Practice
-                </h3>
-
-                <p>
-                    Practice signs in front of the camera
-                    and receive AI feedback.
-                </p>
-
-                <button
-                    class="outline-button"
-                    onclick="openTranslator()"
-                >
-                    Practice Now →
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <div class="progress-card">
-
-            <div>
-
-                <span class="progress-label">
-                    YOUR LEARNING JOURNEY
-                </span>
-
-                <h3>
-                    Keep Learning, Keep Connecting
-                </h3>
-
-                <p>
-                    Your progress tracking system will
-                    appear here as the learning module grows.
-                </p>
-
-            </div>
-
-
-            <div class="progress-circle">
-
-                <strong>
-                    0%
-                </strong>
-
-                <span>
-                    Complete
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     CONVERSATION
-========================================================= -->
-
-<section
-    id="conversation"
-    class="conversation-section"
->
-
-    <div class="section-container">
-
-        <div class="conversation-box">
-
-            <div class="conversation-content">
-
-                <span class="section-label">
-                    LIVE AI CONVERSATION
-                </span>
-
-                <h2>
-                    Connect Through
-                    <span>
-                        Two-Way Communication
-                    </span>
-                </h2>
-
-                <p>
-                    SignBridge AI is designed to create
-                    a communication bridge between sign
-                    language users and hearing users.
-                </p>
-
-
-                <div class="conversation-flow">
-
-                    <div class="conversation-item">
-
-                        <span>
-                            🗣️
-                        </span>
-
-                        <strong>
-                            Speech
-                        </strong>
-
-                        <small>
-                            Hearing Person
-                        </small>
-
-                    </div>
-
-
-                    <div class="flow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="conversation-item">
-
-                        <span>
-                            🤖
-                        </span>
-
-                        <strong>
-                            AI
-                        </strong>
-
-                        <small>
-                            Translation
-                        </small>
-
-                    </div>
-
-
-                    <div class="flow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="conversation-item">
-
-                        <span>
-                            ✋
-                        </span>
-
-                        <strong>
-                            Sign
-                        </strong>
-
-                        <small>
-                            Deaf User
-                        </small>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="conversation-visual">
-
-                <div class="conversation-orb">
-                    💬
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     AI ASSISTANT
-========================================================= -->
-
-<section
-    id="assistant"
-    class="assistant-section"
->
-
-    <div class="section-container">
-
-        <div class="section-heading">
-
-            <span class="section-label">
-                AI ASSISTANT
-            </span>
-
-            <h2>
-                Your Sign Language Assistant
-            </h2>
-
-            <p>
-                Ask questions, learn signs and get
-                assistance through AI.
-            </p>
-
-        </div>
-
-
-        <div class="chat-container">
-
-            <div class="chat-header">
-
-                <div class="chat-avatar">
-                    AI
-                </div>
-
-                <div>
-
-                    <strong>
-                        SignBridge Assistant
-                    </strong>
-
-                    <span>
-                        ● Online
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="chat-messages">
-
-                <div class="bot-message">
-
-                    👋 Hello! I'm your SignBridge AI
-                    assistant.
-
-                    <br><br>
-
-                    Ask me anything about sign language
-                    or communication.
-
-                </div>
-
-            </div>
-
-
-            <div class="chat-input-area">
-
-                <input
-                    type="text"
-                    id="chatInput"
-                    placeholder="Ask something..."
-                    onkeydown="
-                        if(event.key === 'Enter')
-                        sendMessage()
-                    "
-                >
-
-
-                <button
-                    class="send-button"
-                    onclick="sendMessage()"
-                >
-                    →
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     FOOTER
-========================================================= -->
-
-<footer class="footer">
-
-    <div class="footer-container">
-
-        <div class="footer-brand">
-
-            <div class="logo">
+            <a href="#home" class="logo">
 
                 <div class="logo-icon">
                     SB
@@ -1335,86 +386,1597 @@
 
                 </div>
 
+            </a>
+
+
+            <nav class="nav-links">
+
+                <a href="#home">
+                    Home
+                </a>
+
+                <a href="#translator">
+                    Translator
+                </a>
+
+                <a href="#text-sign">
+                    Text → Sign
+                </a>
+
+                <a href="#learning">
+                    Learning
+                </a>
+
+                <a href="#conversation">
+                    Conversation
+                </a>
+
+                <a href="#assistant">
+                    AI Assistant
+                </a>
+
+            </nav>
+
+
+            <a
+                href="#translator"
+                class="nav-button"
+            >
+                Start Translating
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================================================
+         HERO SECTION
+    ========================================================= -->
+
+    <section
+        id="home"
+        class="hero"
+    >
+
+        <div class="hero-background"></div>
+
+        <div class="hero-container">
+
+            <div class="hero-content">
+
+                <div class="badge">
+
+                    <span class="badge-dot"></span>
+
+                    AI-Powered Sign Language Platform
+
+                </div>
+
+
+                <h1>
+
+                    Breaking Barriers.
+
+                    <span>
+                        Building Bridges.
+                    </span>
+
+                </h1>
+
+
+                <p class="hero-description">
+
+                    SignBridge AI uses artificial intelligence,
+                    computer vision and machine learning to
+                    translate sign language and make communication
+                    more accessible for everyone.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <button
+                        class="primary-btn"
+                        onclick="openTranslator()"
+                    >
+
+                        Start Translating
+
+                        <span>→</span>
+
+                    </button>
+
+
+                    <button
+                        class="secondary-btn"
+                        onclick="openLearning()"
+                    >
+
+                        Learn Sign Language
+
+                    </button>
+
+                </div>
+
+
+                <div class="hero-stats">
+
+                    <div class="stat">
+
+                        <strong>
+                            5+
+                        </strong>
+
+                        <span>
+                            Signs Supported
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <strong>
+                            AI
+                        </strong>
+
+                        <span>
+                            Powered Recognition
+                        </span>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <strong>
+                            24/7
+                        </strong>
+
+                        <span>
+                            Learning Support
+                        </span>
+
+                    </div>
+
+                </div>
+
             </div>
 
 
-            <p>
-                Breaking communication barriers
-                through artificial intelligence.
-            </p>
+            <div class="hero-visual">
+
+                <div class="floating-card card-one">
+
+                    <span class="floating-icon">
+                        ✋
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Sign Recognition
+                        </strong>
+
+                        <small>
+                            AI Active
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hero-orb">
+
+                    <div class="orb-inner">
+
+                        <span>
+                            👋
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="floating-card card-two">
+
+                    <span class="floating-icon">
+                        🔊
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Voice Output
+                        </strong>
+
+                        <small>
+                            Ready
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
+    </section>
 
-        <div class="footer-links">
 
-            <a href="#home">
-                Home
-            </a>
 
-            <a href="#translator">
-                Translator
-            </a>
+    <!-- =========================================================
+         FEATURES
+    ========================================================= -->
 
-            <a href="#learning">
-                Learning
-            </a>
+    <section class="features-section">
 
-            <a href="#conversation">
-                Conversation
-            </a>
+        <div class="section-container">
+
+            <div class="section-heading">
+
+                <span class="section-label">
+                    POWERFUL FEATURES
+                </span>
+
+                <h2>
+                    Communication Without Limits
+                </h2>
+
+                <p>
+                    One intelligent platform for translating,
+                    learning and communicating through sign language.
+                </p>
+
+            </div>
+
+
+            <div class="feature-grid">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        ✋
+                    </div>
+
+                    <h3>
+                        Real-Time Recognition
+                    </h3>
+
+                    <p>
+                        Detect hand gestures through your webcam
+                        and convert them into text using AI.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔊
+                    </div>
+
+                    <h3>
+                        Sign to Speech
+                    </h3>
+
+                    <p>
+                        Convert recognized signs into text
+                        and spoken audio.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🎓
+                    </div>
+
+                    <h3>
+                        Learn Sign Language
+                    </h3>
+
+                    <p>
+                        Learn alphabets, numbers, words and
+                        phrases with interactive practice.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        💬
+                    </div>
+
+                    <h3>
+                        AI Conversation
+                    </h3>
+
+                    <p>
+                        Communicate naturally using speech,
+                        text and sign language.
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
 
+    </section>
 
-        <div class="footer-copy">
 
-            © 2026 SignBridge AI.
-            Built with AI & Accessibility in mind.
+
+    <!-- =========================================================
+         TRANSLATOR
+    ========================================================= -->
+
+    <section
+        id="translator"
+        class="translator-section"
+    >
+
+        <div class="section-container">
+
+            <div class="section-heading left">
+
+                <span class="section-label">
+                    AI TRANSLATOR
+                </span>
+
+                <h2>
+                    Sign Language Translator
+                </h2>
+
+                <p>
+                    Show a sign to your camera and let
+                    SignBridge AI recognize it in real time.
+                </p>
+
+            </div>
+
+
+            <div class="translator-grid">
+
+
+                <!-- CAMERA -->
+
+                <div class="translator-card camera-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Live Camera
+                            </h3>
+
+                            <p>
+                                Position your hand clearly
+                                inside the camera.
+                            </p>
+
+                        </div>
+
+
+                        <div
+                            id="cameraStatus"
+                            class="status"
+                        >
+                            ● Ready
+                        </div>
+
+                    </div>
+
+
+                    <div class="camera-area">
+
+                        <div
+                            id="cameraPlaceholder"
+                            class="camera-placeholder"
+                        >
+
+                            <div class="camera-icon">
+                                📷
+                            </div>
+
+                            <h3>
+                                Camera Preview
+                            </h3>
+
+                            <p>
+                                Allow camera access to start
+                                real-time sign language recognition.
+                            </p>
+
+                            <button
+                                id="startCameraButton"
+                                class="primary-btn"
+                                onclick="startCamera()"
+                            >
+                                Start Camera
+                            </button>
+
+                        </div>
+
+
+                        <video
+                            id="cameraVideo"
+                            autoplay
+                            playsinline
+                            muted
+                        ></video>
+
+
+                        <canvas
+                            id="cameraCanvas"
+                            width="640"
+                            height="480"
+                        ></canvas>
+
+                    </div>
+
+
+                    <div class="camera-footer">
+
+                        <span>
+                            Supported signs:
+                        </span>
+
+                        <div class="sign-tags">
+
+                            <span>
+                                HELLO
+                            </span>
+
+                            <span>
+                                YES
+                            </span>
+
+                            <span>
+                                NO
+                            </span>
+
+                            <span>
+                                HELP
+                            </span>
+
+                            <span>
+                                THANK YOU
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PREDICTION -->
+
+                <div class="translator-card prediction-card">
+
+                    <div class="prediction-header">
+
+                        <span class="section-label">
+                            AI PREDICTION
+                        </span>
+
+                        <span
+                            id="predictionStatus"
+                            class="ai-live"
+                        >
+                            ● OFFLINE
+                        </span>
+
+                    </div>
+
+
+                    <div class="prediction-display">
+
+                        <span class="prediction-small">
+                            CURRENT SIGN
+                        </span>
+
+
+                        <div
+                            id="currentSign"
+                            class="current-sign"
+                        >
+                            —
+                        </div>
+
+
+                        <div class="confidence-label">
+
+                            <span>
+                                Confidence
+                            </span>
+
+                            <span id="confidence">
+                                0%
+                            </span>
+
+                        </div>
+
+
+                        <div class="confidence-track">
+
+                            <div
+                                id="confidenceBar"
+                                class="confidence-bar"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="translation-output">
+
+                        <span class="prediction-small">
+                            TRANSLATED TEXT
+                        </span>
+
+
+                        <div
+                            id="translatedText"
+                            class="translated-text"
+                        >
+                            Start signing...
+                        </div>
+
+                    </div>
+
+
+                    <div class="translator-actions">
+
+                        <button
+                            class="action-button speak-button"
+                            onclick="speakTranslation()"
+                        >
+                            🔊 Speak
+                        </button>
+
+
+                        <button
+                            class="action-button clear-button"
+                            onclick="clearTranslation()"
+                        >
+                            ↻ Clear
+                        </button>
+
+                    </div>
+
+
+                    <div class="supported-info">
+
+                        <div class="info-row">
+
+                            <span>
+                                AI Model
+                            </span>
+
+                            <strong>
+                                Random Forest
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span>
+                                Features
+                            </span>
+
+                            <strong>
+                                63 Landmarks
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span>
+                                Processing
+                            </span>
+
+                            <strong>
+                                Real-Time
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
-    </div>
-
-</footer>
+    </section>
 
 
-<!-- =========================================================
-     MEDIAPIPE LIBRARIES
-     
-     IMPORTANT:
-     These must load BEFORE app.js
-========================================================= -->
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-    crossorigin="anonymous"
-></script>
+    <!-- =========================================================
+         TEXT TO SIGN
+    ========================================================= -->
+
+    <section
+        id="text-sign"
+        class="text-sign-section"
+    >
+
+        <div class="section-container">
+
+            <div class="section-heading">
+
+                <span class="section-label">
+                    TEXT TO SIGN
+                </span>
+
+                <h2>
+                    Convert Text Into Sign Language
+                </h2>
+
+                <p>
+                    Enter text and SignBridge AI will display
+                    the corresponding sign animation.
+                </p>
+
+            </div>
 
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
-    crossorigin="anonymous"
-></script>
+            <div class="text-sign-grid">
 
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-    crossorigin="anonymous"
-></script>
+                <!-- TEXT INPUT -->
+
+                <div class="text-sign-card">
+
+                    <div class="text-sign-card-header">
+
+                        <div>
+
+                            <span class="prediction-small">
+                                ENTER TEXT
+                            </span>
+
+                            <h3>
+                                Type a Message
+                            </h3>
+
+                        </div>
+
+                        <span class="text-sign-icon">
+                            ✍️
+                        </span>
+
+                    </div>
 
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
-    crossorigin="anonymous"
-></script>
+                    <textarea
+                        id="textToSignInput"
+                        class="text-sign-input"
+                        placeholder="Example: Hello thank you"
+                        rows="5"
+                    ></textarea>
 
 
-<!-- =========================================================
-     SIGNBRIDGE AI JAVASCRIPT
-========================================================= -->
+                    <div class="quick-sign-title">
+                        Quick Signs
+                    </div>
 
-<script src="app.js"></script>
+
+                    <div class="quick-sign-buttons">
+
+                        <button
+                            type="button"
+                            class="quick-sign-button"
+                            data-sign="hello"
+                        >
+                            HELLO
+                        </button>
+
+                        <button
+                            type="button"
+                            class="quick-sign-button"
+                            data-sign="yes"
+                        >
+                            YES
+                        </button>
+
+                        <button
+                            type="button"
+                            class="quick-sign-button"
+                            data-sign="no"
+                        >
+                            NO
+                        </button>
+
+                        <button
+                            type="button"
+                            class="quick-sign-button"
+                            data-sign="help"
+                        >
+                            HELP
+                        </button>
+
+                        <button
+                            type="button"
+                            class="quick-sign-button"
+                            data-sign="thank_you"
+                        >
+                            THANK YOU
+                        </button>
+
+                    </div>
+
+
+                    <div class="text-sign-actions">
+
+                        <button
+                            id="textToSignBtn"
+                            type="button"
+                            class="primary-btn"
+                        >
+                            ✋ Translate to Sign
+                        </button>
+
+                        <button
+                            id="clearTextSignBtn"
+                            type="button"
+                            class="secondary-btn"
+                        >
+                            ↻ Clear
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SPEECH TO SIGN
+                    ================================================== -->
+
+                    <div class="speech-sign-box">
+
+                        <div class="speech-sign-header">
+
+                            <div>
+
+                                <span class="prediction-small">
+                                    SPEECH TO SIGN
+                                </span>
+
+                                <h3>
+                                    Speak a Message
+                                </h3>
+
+                                <p>
+                                    Speak naturally and convert
+                                    your words into sign language.
+                                </p>
+
+                            </div>
+
+                            <span class="speech-sign-icon">
+                                🎤
+                            </span>
+
+                        </div>
+
+
+                        <div class="speech-sign-controls">
+
+                            <button
+                                id="speechToSignBtn"
+                                type="button"
+                                class="primary-btn"
+                            >
+                                🎤 Start Speaking
+                            </button>
+
+
+                            <button
+                                id="stopSpeechToSignBtn"
+                                type="button"
+                                class="secondary-btn"
+                                disabled
+                            >
+                                ⏹ Stop
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="speech-status"
+                            id="speechStatus"
+                        >
+                            ● Ready to listen
+                        </div>
+
+
+                        <div class="speech-transcript">
+
+                            <span class="prediction-small">
+                                RECOGNIZED SPEECH
+                            </span>
+
+                            <div id="speechTranscript">
+                                Your spoken words will appear here...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="supported-text-sign">
+
+                        <span>
+                            Currently supported:
+                        </span>
+
+                        <strong>
+                            HELLO · YES · NO · HELP · THANK YOU
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SIGN PREVIEW -->
+
+                <div class="text-sign-card">
+
+                    <div class="text-sign-card-header">
+
+                        <div>
+
+                            <span class="prediction-small">
+                                SIGN PREVIEW
+                            </span>
+
+                            <h3 id="signPreviewTitle">
+                                Sign Preview
+                            </h3>
+
+                        </div>
+
+                        <span class="text-sign-icon">
+                            🤟
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="signPreview"
+                        class="sign-preview"
+                    >
+
+                        <div class="sign-placeholder">
+
+                            <span>
+                                🤟
+                            </span>
+
+                            <p>
+                                Enter text to see the sign
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="signPreviewDescription"
+                        class="sign-preview-description"
+                    >
+                        Your sign animation will appear here.
+                    </div>
+
+
+                    <div
+                        id="currentSignWord"
+                        class="current-sign-word"
+                    >
+                        No sign selected
+                    </div>
+
+
+                    <div class="text-sign-progress-container">
+
+                        <div id="textSignProgress"></div>
+
+                    </div>
+
+
+                    <div class="text-sign-controls">
+
+                        <button
+                            id="previousTextSignBtn"
+                            type="button"
+                            class="action-button clear-button"
+                        >
+                            ⏮ Previous
+                        </button>
+
+                        <button
+                            id="playTextSignBtn"
+                            type="button"
+                            class="action-button speak-button"
+                        >
+                            ▶ Play
+                        </button>
+
+                        <button
+                            id="nextTextSignBtn"
+                            type="button"
+                            class="action-button clear-button"
+                        >
+                            Next ⏭
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         HOW IT WORKS
+    ========================================================= -->
+
+    <section class="process-section">
+
+        <div class="section-container">
+
+            <div class="section-heading">
+
+                <span class="section-label">
+                    HOW IT WORKS
+                </span>
+
+                <h2>
+                    From Gesture to Communication
+                </h2>
+
+            </div>
+
+
+            <div class="process-grid">
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        01
+                    </div>
+
+                    <div class="step-icon">
+                        📷
+                    </div>
+
+                    <h3>
+                        Capture
+                    </h3>
+
+                    <p>
+                        Webcam captures your hand gesture.
+                    </p>
+
+                </div>
+
+
+                <div class="process-line"></div>
+
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        02
+                    </div>
+
+                    <div class="step-icon">
+                        ✋
+                    </div>
+
+                    <h3>
+                        Detect
+                    </h3>
+
+                    <p>
+                        MediaPipe detects hand landmarks.
+                    </p>
+
+                </div>
+
+
+                <div class="process-line"></div>
+
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        03
+                    </div>
+
+                    <div class="step-icon">
+                        🧠
+                    </div>
+
+                    <h3>
+                        Predict
+                    </h3>
+
+                    <p>
+                        Machine learning identifies the sign.
+                    </p>
+
+                </div>
+
+
+                <div class="process-line"></div>
+
+
+                <div class="process-step">
+
+                    <div class="step-number">
+                        04
+                    </div>
+
+                    <div class="step-icon">
+                        🔊
+                    </div>
+
+                    <h3>
+                        Communicate
+                    </h3>
+
+                    <p>
+                        Text can be converted into speech.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         LEARNING MODULE
+    ========================================================= -->
+
+    <section
+        id="learning"
+        class="learning-section"
+    >
+
+        <div class="section-container">
+
+            <div class="section-heading">
+
+                <span class="section-label">
+                    LEARNING MODULE
+                </span>
+
+                <h2>
+                    Learn Sign Language
+                </h2>
+
+                <p>
+                    Learn common signs through guided lessons
+                    and interactive practice.
+                </p>
+
+            </div>
+
+
+            <div class="learning-grid">
+
+                <div class="learning-card">
+
+                    <div class="lesson-icon">
+                        🔤
+                    </div>
+
+                    <span class="lesson-level">
+                        BEGINNER
+                    </span>
+
+                    <h3>
+                        Alphabets
+                    </h3>
+
+                    <p>
+                        Learn the basic hand signs for
+                        letters and spelling.
+                    </p>
+
+                    <button class="outline-button">
+                        Start Lesson →
+                    </button>
+
+                </div>
+
+
+                <div class="learning-card">
+
+                    <div class="lesson-icon">
+                        🔢
+                    </div>
+
+                    <span class="lesson-level">
+                        BEGINNER
+                    </span>
+
+                    <h3>
+                        Numbers
+                    </h3>
+
+                    <p>
+                        Practice numbers and numerical
+                        expressions in sign language.
+                    </p>
+
+                    <button class="outline-button">
+                        Start Lesson →
+                    </button>
+
+                </div>
+
+
+                <div class="learning-card">
+
+                    <div class="lesson-icon">
+                        💬
+                    </div>
+
+                    <span class="lesson-level">
+                        INTERMEDIATE
+                    </span>
+
+                    <h3>
+                        Common Words
+                    </h3>
+
+                    <p>
+                        Learn useful everyday signs such as
+                        hello, yes, no and help.
+                    </p>
+
+                    <button class="outline-button">
+                        Start Lesson →
+                    </button>
+
+                </div>
+
+
+                <div class="learning-card">
+
+                    <div class="lesson-icon">
+                        🎯
+                    </div>
+
+                    <span class="lesson-level">
+                        PRACTICE
+                    </span>
+
+                    <h3>
+                        AI Practice
+                    </h3>
+
+                    <p>
+                        Practice signs in front of the camera
+                        and receive AI feedback.
+                    </p>
+
+                    <button
+                        class="outline-button"
+                        onclick="openTranslator()"
+                    >
+                        Practice Now →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="progress-card">
+
+                <div>
+
+                    <span class="progress-label">
+                        YOUR LEARNING JOURNEY
+                    </span>
+
+                    <h3>
+                        Keep Learning, Keep Connecting
+                    </h3>
+
+                    <p>
+                        Your progress tracking system will
+                        appear here as the learning module grows.
+                    </p>
+
+                </div>
+
+
+                <div class="progress-circle">
+
+                    <strong>
+                        0%
+                    </strong>
+
+                    <span>
+                        Complete
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         CONVERSATION
+    ========================================================= -->
+
+    <section
+        id="conversation"
+        class="conversation-section"
+    >
+
+        <div class="section-container">
+
+            <div class="conversation-box">
+
+                <div class="conversation-content">
+
+                    <span class="section-label">
+                        LIVE AI CONVERSATION
+                    </span>
+
+                    <h2>
+
+                        Connect Through
+
+                        <span>
+                            Two-Way Communication
+                        </span>
+
+                    </h2>
+
+                    <p>
+                        SignBridge AI is designed to create
+                        a communication bridge between sign
+                        language users and hearing users.
+                    </p>
+
+
+                    <div class="conversation-flow">
+
+                        <div class="conversation-item">
+
+                            <span>
+                                🗣️
+                            </span>
+
+                            <strong>
+                                Speech
+                            </strong>
+
+                            <small>
+                                Hearing Person
+                            </small>
+
+                        </div>
+
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="conversation-item">
+
+                            <span>
+                                🤖
+                            </span>
+
+                            <strong>
+                                AI
+                            </strong>
+
+                            <small>
+                                Translation
+                            </small>
+
+                        </div>
+
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="conversation-item">
+
+                            <span>
+                                ✋
+                            </span>
+
+                            <strong>
+                                Sign
+                            </strong>
+
+                            <small>
+                                Deaf User
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="conversation-visual">
+
+                    <div class="conversation-orb">
+                        💬
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         AI ASSISTANT
+    ========================================================= -->
+
+    <section
+        id="assistant"
+        class="assistant-section"
+    >
+
+        <div class="section-container">
+
+            <div class="section-heading">
+
+                <span class="section-label">
+                    AI ASSISTANT
+                </span>
+
+                <h2>
+                    Your Sign Language Assistant
+                </h2>
+
+                <p>
+                    Ask questions, learn signs and get
+                    assistance through AI.
+                </p>
+
+            </div>
+
+
+            <div class="chat-container">
+
+                <div class="chat-header">
+
+                    <div class="chat-avatar">
+                        AI
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            SignBridge Assistant
+                        </strong>
+
+                        <span>
+                            ● Online
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-messages">
+
+                    <div class="bot-message">
+
+                        👋 Hello! I'm your SignBridge AI
+                        assistant.
+
+                        <br><br>
+
+                        Ask me anything about sign language
+                        or communication.
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-input-area">
+
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Ask something..."
+                        onkeydown="
+                            if(event.key === 'Enter')
+                            sendMessage()
+                        "
+                    >
+
+
+                    <button
+                        class="send-button"
+                        onclick="sendMessage()"
+                    >
+                        →
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================= -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <div class="logo">
+
+                    <div class="logo-icon">
+                        SB
+                    </div>
+
+                    <div>
+
+                        <span class="logo-title">
+                            SignBridge
+                        </span>
+
+                        <span class="logo-ai">
+                            AI
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    Breaking communication barriers
+                    through artificial intelligence.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="#home">
+                    Home
+                </a>
+
+                <a href="#translator">
+                    Translator
+                </a>
+
+                <a href="#learning">
+                    Learning
+                </a>
+
+                <a href="#conversation">
+                    Conversation
+                </a>
+
+            </div>
+
+
+            <div class="footer-copy">
+
+                © 2026 SignBridge AI.
+                Built with AI & Accessibility in mind.
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =========================================================
+         MEDIAPIPE LIBRARIES
+    ========================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+        crossorigin="anonymous"
+    ></script>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"
+    ></script>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"
+    ></script>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+        crossorigin="anonymous"
+    ></script>
+
+
+
+    <!-- =========================================================
+         SIGNBRIDGE AI JAVASCRIPT
+    ========================================================= -->
+
+    <script src="app.js"></script>
 
 
 </body>

@@ -95,7 +95,7 @@ let textSignTimer = null;
    SPEECH RECOGNITION
 ========================================================= */
 
-let speechRecognition = null;
+let speechToSignRecognition = null;
 
 
 /* =========================================================
@@ -2792,6 +2792,241 @@ document.addEventListener(
         console.log(
             "SignBridge AI initialized successfully."
         );
+
+    }
+);
+
+ // =========================================================
+// SPEECH TO SIGN
+// =========================================================
+let speechRecognition = null;
+   let isSpeechListening = false;
+
+   function initializeSpeechToSign() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    const speechButton = document.getElementById("speechToSignBtn");
+    const stopButton = document.getElementById("stopSpeechToSignBtn");
+    const status = document.getElementById("speechStatus");
+    const transcriptBox = document.getElementById("speechTranscript");
+
+    if (!speechButton || !stopButton) {
+        return;
+    }
+
+    if (!SpeechRecognition) {
+
+        speechButton.disabled = true;
+
+        status.textContent =
+            "Speech recognition is not supported in this browser.";
+
+        return;
+    }
+
+    speechToSignRecognition = new SpeechRecognition();
+
+    speechToSignRecognition.continuous = false;
+    speechToSignRecognition.interimResults = true;
+    speechToSignRecognition.lang = "en-IN";
+
+    speechToSignRecognition.onstart = function () {
+
+        isSpeechListening = true;
+
+        speechButton.disabled = true;
+        stopButton.disabled = false;
+
+        status.textContent = "● Listening... Speak now";
+
+        transcriptBox.textContent =
+            "Listening for your speech...";
+    };
+
+    speechToSignRecognition.onresult = function (event) {
+
+        let finalText = "";
+        let interimText = "";
+
+        for (
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ) {
+
+            const text =
+                event.results[i][0].transcript;
+
+            if (event.results[i].isFinal) {
+                finalText += text;
+            } else {
+                interimText += text;
+            }
+        }
+
+        const displayText =
+            finalText || interimText;
+
+        transcriptBox.textContent =
+            displayText || "Listening...";
+
+        if (finalText.trim()) {
+
+            const cleanText =
+                finalText.trim();
+
+            transcriptBox.textContent =
+                cleanText;
+
+            const textInput =
+                document.getElementById("textToSignInput");
+
+            if (textInput) {
+                textInput.value = cleanText;
+            }
+
+            status.textContent =
+                "✓ Speech recognized. Converting to sign...";
+
+            setTimeout(() => {
+
+                if (typeof startTextToSign === "function") {
+                    startTextToSign();
+                }
+
+            }, 300);
+        }
+    };
+
+    speechToSignRecognition.onerror = function (event) {
+
+    console.error("Speech Recognition Error:", event.error);
+
+    isSpeechListening = false;
+
+    speechButton.disabled = false;
+    stopButton.disabled = true;
+
+    switch (event.error) {
+
+        case "not-allowed":
+
+            status.textContent =
+                "⚠ Microphone permission denied. Allow microphone access in Chrome.";
+
+            break;
+
+        case "audio-capture":
+
+            status.textContent =
+                "⚠ No microphone detected. Check your microphone.";
+
+            break;
+
+        case "no-speech":
+
+            status.textContent =
+                "⚠ No speech detected. Please speak clearly and try again.";
+
+            break;
+
+        case "network":
+
+            status.textContent =
+                "⚠ Speech recognition network error. Check your internet connection.";
+
+            break;
+
+        case "aborted":
+
+            status.textContent =
+                "⚠ Speech recognition was stopped.";
+
+            break;
+
+        case "service-not-allowed":
+
+            status.textContent =
+                "⚠ Speech recognition service is not available.";
+
+            break;
+
+        default:
+
+            status.textContent =
+                "⚠ Speech recognition error: " + event.error;
+    }
+};
+
+    speechToSignRecognition.onend = function () {
+
+        isSpeechListening = false;
+
+        speechButton.disabled = false;
+        stopButton.disabled = true;
+
+        if (
+            status.textContent.includes("Listening")
+        ) {
+
+            status.textContent =
+                "● Ready to listen";
+        }
+    };
+
+    speechButton.addEventListener(
+        "click",
+        startSpeechToSign
+    );
+
+    stopButton.addEventListener(
+        "click",
+        stopSpeechToSign
+    );
+}
+
+
+function startSpeechToSign() {
+
+    if (!speechToSignRecognition) {
+        return;
+    }
+
+    try {
+
+        speechToSignRecognition.start();
+
+    } catch (error) {
+
+        console.log(
+            "Speech recognition already running."
+        );
+    }
+}
+
+
+function stopSpeechToSign() {
+
+    if (
+        speechToSignRecognition &&
+        isSpeechListening
+    ) {
+
+        speechToSignRecognition.stop();
+    }
+}
+
+
+// Initialize Speech → Sign after page loads
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        initializeSpeechToSign();
 
     }
 );
