@@ -2901,7 +2901,7 @@ let speechRecognition = null;
         }
     };
 
-    speechToSignRecognition.onerror = function (event) {
+    speechRecognition.onerror = function (event) {
 
     console.error("Speech Recognition Error:", event.error);
 
@@ -3030,3 +3030,208 @@ document.addEventListener(
 
     }
 );
+
+// ============================================================
+// ALPHABET LEARNING MODULE
+// ============================================================
+
+const alphabetLetters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+let learnedAlphabetLetters = new Set();
+
+function openAlphabetLesson() {
+
+    const modal =
+        document.getElementById(
+            "alphabetLessonModal"
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.add("active");
+
+    createAlphabetGrid();
+
+    selectAlphabetLetter("A");
+}
+
+
+function closeAlphabetLesson() {
+
+    const modal =
+        document.getElementById(
+            "alphabetLessonModal"
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove("active");
+}
+
+
+function createAlphabetGrid() {
+
+    const grid =
+        document.getElementById(
+            "alphabetGrid"
+        );
+
+    if (!grid) {
+        return;
+    }
+
+    grid.innerHTML = "";
+
+    alphabetLetters.forEach(
+        function(letter) {
+
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "alphabet-letter";
+
+            button.innerText =
+                letter;
+
+            button.onclick =
+                function() {
+
+                    selectAlphabetLetter(letter);
+
+                };
+
+            grid.appendChild(button);
+
+        }
+    );
+}
+
+
+function selectAlphabetLetter(letter) {
+
+    const selected =
+        document.getElementById(
+            "selectedAlphabet"
+        );
+
+    const title =
+        document.getElementById(
+            "selectedAlphabetTitle"
+        );
+
+    const description =
+        document.getElementById(
+            "selectedAlphabetDescription"
+        );
+
+    if (selected) {
+
+        selected.innerText =
+            letter;
+
+    }
+
+    if (title) {
+
+        title.innerText =
+            "Letter " + letter;
+
+    }
+
+    if (description) {
+
+        description.innerText =
+            "Learn the hand sign for the letter " +
+            letter +
+            " and use it when spelling words.";
+
+    }
+
+    learnedAlphabetLetters.add(
+        letter
+    );
+
+    updateAlphabetProgress();
+
+    const buttons =
+        document.querySelectorAll(
+            ".alphabet-letter"
+        );
+
+    buttons.forEach(
+        function(button) {
+
+            button.classList.remove(
+                "selected"
+            );
+
+            if (
+                button.innerText ===
+                letter
+            ) {
+
+                button.classList.add(
+                    "selected"
+                );
+
+            }
+
+            if (
+                learnedAlphabetLetters.has(
+                    button.innerText
+                )
+            ) {
+
+                button.classList.add(
+                    "learned"
+                );
+
+            }
+
+        }
+    );
+}
+
+
+function updateAlphabetProgress() {
+
+    const count =
+        learnedAlphabetLetters.size;
+
+    const percentage =
+        (count / alphabetLetters.length) *
+        100;
+
+    const progressText =
+        document.getElementById(
+            "alphabetProgressText"
+        );
+
+    const progressBar =
+        document.getElementById(
+            "alphabetProgressBar"
+        );
+
+    if (progressText) {
+
+        progressText.innerText =
+            count +
+            " / " +
+            alphabetLetters.length;
+
+    }
+
+    if (progressBar) {
+
+        progressBar.style.width =
+            percentage + "%";
+
+    }
+
+}
