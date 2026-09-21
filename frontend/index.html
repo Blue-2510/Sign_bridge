@@ -93,6 +93,113 @@
 @media(max-width:800px){.alphabet-grid{grid-template-columns:repeat(7,1fr)}.alphabet-practice-result{grid-template-columns:1fr}.alphabet-camera-container{height:320px}}
 @media(max-width:520px){.lesson-modal{padding:12px}.lesson-modal-content{padding:20px}.alphabet-grid{grid-template-columns:repeat(5,1fr)}.alphabet-display{align-items:flex-start}}
 
+
+/* =========================================================
+   LEARNING MODULE - NUMBERS / WORDS / AI PRACTICE
+========================================================= */
+.number-lesson-display,.word-lesson-display{
+    display:flex;align-items:center;gap:20px;padding:22px;margin-bottom:22px;
+    border-radius:18px;background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08)
+}
+.selected-number{
+    width:86px;height:86px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;border-radius:20px;background:rgba(0,171,228,.12);
+    border:1px solid rgba(0,171,228,.25);color:#fff;font-size:42px;font-weight:800
+}
+.selected-word-icon{
+    width:86px;height:86px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;border-radius:20px;background:rgba(0,171,228,.12);
+    border:1px solid rgba(0,171,228,.25);font-size:42px
+}
+.lesson-mini-label{display:block;color:#8da2ba;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.number-lesson-content h3,.word-lesson-display h3{margin:0 0 6px;color:#fff;font-size:24px}
+.number-lesson-content p,.word-lesson-display p{margin:0;color:#9fb0c4;line-height:1.6}
+.number-lesson-tip{
+    margin-top:12px;padding:10px 13px;border-radius:10px;background:rgba(0,171,228,.08);
+    border:1px solid rgba(0,171,228,.16);color:#cdefff;font-size:13px
+}
+.numbers-grid,.words-grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0
+}
+.number-item,.word-item{
+    min-height:62px;padding:10px;border:1px solid rgba(120,160,200,.18);
+    border-radius:12px;background:rgba(255,255,255,.035);color:#fff;cursor:pointer;
+    transition:.2s ease;font-weight:800
+}
+.number-item:hover,.number-item.selected,.word-item:hover,.word-item.selected{
+    border-color:#00abe4;background:rgba(0,171,228,.14);transform:translateY(-1px)
+}
+.number-item.learned,.word-item.learned{box-shadow:inset 0 -3px 0 #00abe4}
+.number-item small,.word-item small{display:block;color:#8da2ba;font-weight:600;font-size:10px;margin-top:4px}
+.lesson-navigation{
+    display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px
+}
+.lesson-navigation>span{min-width:70px;text-align:center;color:#dbeafe;font-weight:800}
+.lesson-complete-box{
+    display:none;margin-top:20px;padding:20px;text-align:center;border-radius:16px;
+    background:rgba(0,171,228,.08);border:1px solid rgba(0,171,228,.22)
+}
+.lesson-complete-box.show{display:block}
+.lesson-complete-icon{font-size:36px;margin-bottom:6px}
+.lesson-complete-box h3{margin:0 0 6px;color:#fff}
+.lesson-complete-box p{margin:0;color:#9fb0c4}
+.word-lesson-preview{
+    min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    border-radius:18px;background:#07111f;border:1px solid rgba(120,160,200,.15);padding:18px;
+    box-sizing:border-box;margin-bottom:20px
+}
+.word-lesson-preview img{max-width:100%;max-height:210px;object-fit:contain;border-radius:12px}
+.word-placeholder{text-align:center;color:#71839a}
+.word-placeholder span{display:block;font-size:58px;margin-bottom:8px}
+.word-placeholder p{margin:0}
+.word-practice-box{
+    margin-top:24px;padding:22px;border-radius:18px;background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);text-align:center
+}
+.word-practice-box h3{margin:0 0 7px;color:#fff}
+.word-practice-box>p{margin:0 auto 16px;color:#8da2ba;max-width:650px}
+.word-practice-area{display:none;margin-top:20px}
+.word-practice-area.active{display:block}
+.word-camera-container{
+    position:relative;width:min(100%,640px);height:360px;margin:0 auto 20px;overflow:hidden;
+    border-radius:18px;background:#050b16;border:1px solid rgba(255,255,255,.12)
+}
+#wordPracticeVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(-1)}
+#wordPracticeCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.word-practice-result{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:640px;margin:0 auto 16px
+}
+.ai-practice-choice-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px
+}
+.ai-practice-choice{
+    min-height:150px;padding:20px;border:1px solid rgba(120,160,200,.18);border-radius:18px;
+    background:rgba(255,255,255,.035);color:#fff;cursor:pointer;text-align:left;
+    transition:.2s ease
+}
+.ai-practice-choice:hover{border-color:#00abe4;background:rgba(0,171,228,.1);transform:translateY(-2px)}
+.ai-practice-choice>span{display:block;font-size:34px;margin-bottom:14px}
+.ai-practice-choice strong{display:block;font-size:18px;margin-bottom:6px}
+.ai-practice-choice small{display:block;color:#8da2ba;line-height:1.4}
+.ai-practice-choice.disabled-choice{opacity:.78}
+.ai-practice-info{
+    margin-top:20px;padding:15px 16px;border-radius:12px;background:rgba(0,171,228,.07);
+    border:1px solid rgba(0,171,228,.16);color:#dbeafe;text-align:center
+}
+@media(max-width:800px){
+    .numbers-grid,.words-grid{grid-template-columns:repeat(3,1fr)}
+    .ai-practice-choice-grid{grid-template-columns:1fr}
+    .number-lesson-display,.word-lesson-display{align-items:flex-start}
+}
+@media(max-width:520px){
+    .numbers-grid,.words-grid{grid-template-columns:repeat(2,1fr)}
+    .number-lesson-display,.word-lesson-display{flex-direction:column}
+    .lesson-navigation{gap:8px}
+    .lesson-navigation button{padding:10px 12px}
+    .word-camera-container{height:300px}
+}
+
 </style>
 
 </head>
@@ -1027,11 +1134,12 @@
                 </h3>
 
                 <p>
-                    Practice numbers and numerical
-                    expressions in sign language.
+                    Learn numbers 1–10 through guided
+                    lessons and practice activities.
                 </p>
 
-                <button class="outline-button">
+                <button class="outline-button"
+                onclick="openNumbersLesson()">
                     Start Lesson →
                 </button>
 
@@ -1057,7 +1165,8 @@
                     hello, yes, no and help.
                 </p>
 
-                <button class="outline-button">
+                <button class="outline-button"
+                onclick="openWordsLesson()">
                     Start Lesson →
                 </button>
 
@@ -1085,7 +1194,7 @@
 
                 <button
                     class="outline-button"
-                    onclick="openTranslator()"
+                    onclick="openAIPractice()"
                 >
                     Practice Now →
                 </button>
@@ -1137,18 +1246,14 @@
 <!-- =========================================================
      ALPHABET LESSON MODAL
 ========================================================= -->
-
-<div id="alphabetLessonModal" class="lesson-modal">
-
+<div id="alphabetLessonModal" class="lesson-modal" aria-hidden="true">
     <div class="lesson-modal-content">
-
         <div class="lesson-modal-header">
             <div>
                 <span class="section-label">BEGINNER LESSON</span>
                 <h2>Sign Language Alphabet</h2>
                 <p>Select a letter to begin learning.</p>
             </div>
-
             <button type="button" class="lesson-close-button" onclick="closeAlphabetLesson()" aria-label="Close alphabet lesson">×</button>
         </div>
 
@@ -1161,13 +1266,10 @@
         </div>
 
         <div class="alphabet-practice">
-           <button
-                type="button"
-                class="primary-btn"
-                id="practiceAlphabetBtn"
-            >
+            <button type="button" class="primary-btn" id="practiceAlphabetBtn">
                 🎥 Practice This Letter
-           </button>
+            </button>
+
             <div id="alphabetPracticeArea" class="alphabet-practice-area">
                 <div class="alphabet-camera-container">
                     <video id="alphabetPracticeVideo" autoplay playsinline muted></video>
@@ -1186,26 +1288,20 @@
                 </div>
 
                 <div id="alphabetPracticeMessage" class="alphabet-practice-message">
-    Show the selected letter to the camera.
-</div>
+                    Show the selected letter to the camera.
+                </div>
 
-            <button
-                type="button"
-                id="nextAlphabetBtn"
-                class="primary-btn"
-                style="display:none; width:min(100%,640px); margin:0 auto 12px;"
-                onclick="goToNextAlphabetLetter()"
-            >
-                Next Letter →
-            </button>
+                <button type="button" id="nextAlphabetBtn" class="primary-btn"
+                        style="display:none; width:min(100%,640px); margin:0 auto 12px;"
+                        onclick="goToNextAlphabetLetter()">
+                    Next Letter →
+                </button>
 
-            <button
-                type="button"
-                class="outline-button"
-                onclick="stopAlphabetPractice()"
-            >
-                Stop Practice
-            </button>
+                <button type="button" class="outline-button"
+                        onclick="stopAlphabetPractice()">
+                    Stop Practice
+                </button>
+            </div>
         </div>
 
         <div id="alphabetGrid" class="alphabet-grid"></div>
@@ -1223,11 +1319,198 @@
         <div class="lesson-actions">
             <button type="button" class="outline-button" onclick="closeAlphabetLesson()">Close Lesson</button>
         </div>
-
     </div>
-
 </div>
 
+<!-- =========================================================
+     NUMBERS LESSON MODAL
+========================================================= -->
+<div id="numbersLessonModal" class="lesson-modal" aria-hidden="true">
+    <div class="lesson-modal-content">
+        <div class="lesson-modal-header">
+            <div>
+                <span class="section-label">BEGINNER LESSON</span>
+                <h2>Sign Language Numbers</h2>
+                <p>Learn numbers 1–10 step by step.</p>
+            </div>
+            <button type="button" class="lesson-close-button"
+                    onclick="closeNumbersLesson()" aria-label="Close numbers lesson">×</button>
+        </div>
+
+        <div class="number-lesson-display">
+            <div id="selectedNumber" class="selected-number">1</div>
+            <div class="number-lesson-content">
+                <span class="lesson-mini-label">CURRENT LESSON</span>
+                <h3 id="selectedNumberTitle">Number 1</h3>
+                <p id="selectedNumberDescription">Learn the sign for number 1.</p>
+                <div id="numberLessonTip" class="number-lesson-tip">
+                    Focus on the hand position and keep your movement clear.
+                </div>
+            </div>
+        </div>
+
+        <div id="numbersGrid" class="numbers-grid"></div>
+
+        <div class="lesson-navigation">
+            <button type="button" id="previousNumberBtn" class="outline-button"
+                    onclick="previousNumberLesson()">← Previous</button>
+            <span id="numberLessonCounter">1 / 10</span>
+            <button type="button" id="nextNumberBtn" class="primary-btn"
+                    onclick="nextNumberLesson()">Next →</button>
+        </div>
+
+        <div class="lesson-progress">
+            <div class="lesson-progress-info">
+                <span>Numbers Progress</span>
+                <strong id="numbersProgressText">0 / 10</strong>
+            </div>
+            <div class="lesson-progress-bar">
+                <div id="numbersProgressBar" class="lesson-progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="lesson-complete-box" id="numbersCompleteBox">
+            <div class="lesson-complete-icon">🎉</div>
+            <h3>Numbers Lesson Complete!</h3>
+            <p>You completed the numbers learning lesson.</p>
+        </div>
+
+        <div class="lesson-actions">
+            <button type="button" class="outline-button" onclick="closeNumbersLesson()">Close Lesson</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     COMMON WORDS LESSON MODAL
+========================================================= -->
+<div id="wordsLessonModal" class="lesson-modal" aria-hidden="true">
+    <div class="lesson-modal-content">
+        <div class="lesson-modal-header">
+            <div>
+                <span class="section-label">EVERYDAY COMMUNICATION</span>
+                <h2>Common Sign Language Words</h2>
+                <p>Learn useful signs for everyday communication.</p>
+            </div>
+            <button type="button" class="lesson-close-button"
+                    onclick="closeWordsLesson()" aria-label="Close common words lesson">×</button>
+        </div>
+
+        <div class="word-lesson-display">
+            <div id="selectedWordIcon" class="selected-word-icon">👋</div>
+            <div>
+                <span class="lesson-mini-label">CURRENT WORD</span>
+                <h3 id="selectedWordTitle">HELLO</h3>
+                <p id="selectedWordDescription">A friendly greeting used when meeting someone.</p>
+            </div>
+        </div>
+
+        <div id="wordLessonPreview" class="word-lesson-preview">
+            <div class="word-placeholder">
+                <span>🤟</span>
+                <p>Select a word to see its sign.</p>
+            </div>
+        </div>
+
+        <div id="wordsGrid" class="words-grid"></div>
+
+        <div class="lesson-navigation">
+            <button type="button" class="outline-button"
+                    onclick="previousWordLesson()">← Previous</button>
+            <span id="wordLessonCounter">1 / 5</span>
+            <button type="button" class="primary-btn"
+                    onclick="nextWordLesson()">Next →</button>
+        </div>
+
+        <div class="lesson-progress">
+            <div class="lesson-progress-info">
+                <span>Words Progress</span>
+                <strong id="wordsProgressText">0 / 5</strong>
+            </div>
+            <div class="lesson-progress-bar">
+                <div id="wordsProgressBar" class="lesson-progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="word-practice-box">
+            <h3>🤖 Practice This Word with AI</h3>
+            <p>Show the selected sign to your camera and let SignBridge AI check it.</p>
+            <button type="button" class="primary-btn" onclick="startWordPractice()">
+                🎥 Start AI Practice
+            </button>
+
+            <div id="wordPracticeArea" class="word-practice-area">
+                <div class="word-camera-container">
+                    <video id="wordPracticeVideo" autoplay playsinline muted></video>
+                    <canvas id="wordPracticeCanvas"></canvas>
+                </div>
+
+                <div class="word-practice-result">
+                    <div class="practice-prediction">
+                        <span>AI Prediction</span>
+                        <strong id="wordPrediction">—</strong>
+                    </div>
+                    <div class="practice-confidence">
+                        <span>Confidence</span>
+                        <strong id="wordConfidence">0%</strong>
+                    </div>
+                </div>
+
+                <div id="wordPracticeMessage" class="alphabet-practice-message">
+                    Show the selected sign to the camera.
+                </div>
+
+                <button type="button" class="outline-button" onclick="stopWordPractice()">
+                    Stop Practice
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     AI PRACTICE MODAL
+========================================================= -->
+<div id="aiPracticeModal" class="lesson-modal" aria-hidden="true">
+    <div class="lesson-modal-content">
+        <div class="lesson-modal-header">
+            <div>
+                <span class="section-label">AI PRACTICE</span>
+                <h2>Practice With SignBridge AI</h2>
+                <p>Choose what you want to practice.</p>
+            </div>
+            <button type="button" class="lesson-close-button"
+                    onclick="closeAIPractice()" aria-label="Close AI practice">×</button>
+        </div>
+
+        <div class="ai-practice-choice-grid">
+            <button type="button" class="ai-practice-choice"
+                    onclick="startAIAlphabetPractice()">
+                <span>🔤</span>
+                <strong>Alphabet</strong>
+                <small>Practice A–Z with AI</small>
+            </button>
+
+            <button type="button" class="ai-practice-choice"
+                    onclick="startAIWordPractice()">
+                <span>💬</span>
+                <strong>Common Words</strong>
+                <small>Practice supported words</small>
+            </button>
+
+            <button type="button" class="ai-practice-choice disabled-choice"
+                    onclick="showNumberAIMessage()">
+                <span>🔢</span>
+                <strong>Numbers</strong>
+                <small>Learning mode available</small>
+            </button>
+        </div>
+
+        <div id="aiPracticeInfo" class="ai-practice-info">
+            Select a category above to begin.
+        </div>
+    </div>
+</div>
 
 <!-- =========================================================
      CONVERSATION
@@ -1553,5 +1836,3 @@
 
 
 </body>
-
-</html>
