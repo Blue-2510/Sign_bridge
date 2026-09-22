@@ -1505,23 +1505,16 @@ function openAlphabetLesson() {
     selectAlphabetLetter("A");
 
     stopAlphabetPractice();
-    function goToNextAlphabetLetter() {
+}
 
-    const currentIndex =
-        alphabetLetters.indexOf(
-            selectedAlphabetLetter
-        );
+function goToNextAlphabetLetter() {
+    const currentIndex = alphabetLetters.indexOf(selectedAlphabetLetter);
 
     if (currentIndex === -1) {
         return;
     }
 
-    const nextIndex =
-        currentIndex + 1;
-
-    // All letters completed
-    if (nextIndex >= alphabetLetters.length) {
-
+    if (currentIndex >= alphabetLetters.length - 1) {
         stopAlphabetPractice();
 
         updateAlphabetPracticeDisplay(
@@ -1533,43 +1526,25 @@ function openAlphabetLesson() {
         return;
     }
 
-    const nextLetter =
-        alphabetLetters[nextIndex];
+    const nextLetter = alphabetLetters[currentIndex + 1];
 
     stopAlphabetPractice();
+    selectAlphabetLetter(nextLetter);
 
-    selectAlphabetLetter(
-        nextLetter
-    );
-
-    const nextButton =
-        document.getElementById(
-            "nextAlphabetBtn"
-        );
+    const nextButton = document.getElementById("nextAlphabetBtn");
 
     if (nextButton) {
-        nextButton.style.display =
-            "none";
+        nextButton.style.display = "none";
     }
 
-    const message =
-        document.getElementById(
-            "alphabetPracticeMessage"
-        );
+    const message = document.getElementById("alphabetPracticeMessage");
 
     if (message) {
-
         message.textContent =
             "Show the selected letter to the camera.";
-
     }
+}    
 
-    console.log(
-        "➡️ Next alphabet letter:",
-        nextLetter
-    );
-}
-}
 
 
 // ============================================================
@@ -2499,6 +2474,2026 @@ function updateAlphabetProgress() {
 
 }
 
+// ============================================================
+// NUMBERS LESSON
+// ============================================================
+
+const lessonNumbers = [
+    {
+        value: "1",
+        title: "Number 1",
+        tip: "Practice the sign for number 1."
+    },
+    {
+        value: "2",
+        title: "Number 2",
+        tip: "Practice the sign for number 2."
+    },
+    {
+        value: "3",
+        title: "Number 3",
+        tip: "Practice the sign for number 3."
+    },
+    {
+        value: "4",
+        title: "Number 4",
+        tip: "Practice the sign for number 4."
+    },
+    {
+        value: "5",
+        title: "Number 5",
+        tip: "Practice the sign for number 5."
+    },
+    {
+        value: "6",
+        title: "Number 6",
+        tip: "Practice the sign for number 6."
+    },
+    {
+        value: "7",
+        title: "Number 7",
+        tip: "Practice the sign for number 7."
+    },
+    {
+        value: "8",
+        title: "Number 8",
+        tip: "Practice the sign for number 8."
+    },
+    {
+        value: "9",
+        title: "Number 9",
+        tip: "Practice the sign for number 9."
+    },
+    {
+        value: "10",
+        title: "Number 10",
+        tip: "Practice the sign for number 10."
+    }
+];
+
+let selectedNumberIndex = 0;
+
+let learnedNumbers = new Set();
+
+let numberPracticeStream = null;
+
+let numberPracticeRunning = false;
+
+let numberPracticeHands = null;
+
+let numberPredictionBusy = false;
+
+let numberStablePrediction = null;
+
+let numberStableCount = 0;
+
+const NUMBER_STABLE_REQUIRED = 4;
+
+
+// ============================================================
+// OPEN NUMBERS LESSON
+// ============================================================
+
+function openNumbersLesson() {
+
+    const modal =
+        document.getElementById(
+            "numbersLessonModal"
+        );
+
+    if (!modal) {
+
+        console.error(
+            "Numbers lesson modal not found."
+        );
+
+        return;
+    }
+
+    modal.classList.add("active");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    createNumbersGrid();
+
+    selectNumberLesson(
+        selectedNumberIndex
+    );
+
+    updateNumbersProgress();
+
+    stopNumberPractice();
+}
+
+
+// ============================================================
+// CLOSE NUMBERS LESSON
+// ============================================================
+
+function closeNumbersLesson() {
+
+    stopNumberPractice();
+
+    const modal =
+        document.getElementById(
+            "numbersLessonModal"
+        );
+
+    if (modal) {
+
+        modal.classList.remove(
+            "active"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+}
+
+
+// ============================================================
+// CREATE NUMBERS GRID
+// ============================================================
+
+function createNumbersGrid() {
+
+    const grid =
+        document.getElementById(
+            "numbersGrid"
+        );
+
+    if (!grid) {
+        return;
+    }
+
+    grid.innerHTML = "";
+
+    lessonNumbers.forEach(
+        function (number, index) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.type = "button";
+
+            button.className =
+                "number-item";
+
+            button.innerHTML = `
+                <span class="number-item-value">
+                    ${number.value}
+                </span>
+
+                <span class="number-item-label">
+                    Number ${number.value}
+                </span>
+            `;
+
+            button.onclick =
+                function () {
+
+                    selectNumberLesson(
+                        index
+                    );
+                };
+
+            grid.appendChild(
+                button
+            );
+        }
+    );
+
+    updateNumbersGrid();
+}
+
+
+// ============================================================
+// SELECT NUMBER
+// ============================================================
+
+function selectNumberLesson(index) {
+
+    if (
+        index < 0 ||
+        index >= lessonNumbers.length
+    ) {
+        return;
+    }
+
+    stopNumberPractice();
+
+    selectedNumberIndex =
+        index;
+
+    const number =
+        lessonNumbers[index];
+
+    const selected =
+        document.getElementById(
+            "selectedNumber"
+        );
+
+    const title =
+        document.getElementById(
+            "selectedNumberTitle"
+        );
+
+    const description =
+        document.getElementById(
+            "selectedNumberDescription"
+        );
+
+    const tip =
+        document.getElementById(
+            "numberLessonTip"
+        );
+
+    if (selected) {
+
+        selected.innerText =
+            number.value;
+    }
+
+    if (title) {
+
+        title.innerText =
+            number.title;
+    }
+
+    if (description) {
+
+        description.innerText =
+            `Learn the sign for number ${number.value}.`;
+    }
+
+    if (tip) {
+
+        tip.innerText =
+            number.tip;
+    }
+
+    const counter =
+        document.getElementById(
+            "numberLessonCounter"
+        );
+
+    if (counter) {
+
+        counter.innerText =
+            `${index + 1} / ${lessonNumbers.length}`;
+    }
+
+    const previous =
+        document.getElementById(
+            "previousNumberBtn"
+        );
+
+    const next =
+        document.getElementById(
+            "nextNumberBtn"
+        );
+
+    if (previous) {
+
+        previous.disabled =
+            index === 0;
+    }
+
+    if (next) {
+
+        next.innerText =
+            index === lessonNumbers.length - 1
+                ? "Finish →"
+                : "Next →";
+    }
+
+    updateNumbersGrid();
+}
+
+
+// ============================================================
+// UPDATE NUMBERS GRID
+// ============================================================
+
+function updateNumbersGrid() {
+
+    document
+        .querySelectorAll(
+            ".number-item"
+        )
+        .forEach(
+            function (button, index) {
+
+                button.classList.toggle(
+                    "selected",
+                    index === selectedNumberIndex
+                );
+
+                button.classList.toggle(
+                    "learned",
+                    learnedNumbers.has(
+                        lessonNumbers[index].value
+                    )
+                );
+            }
+        );
+}
+
+
+// ============================================================
+// PREVIOUS NUMBER
+// ============================================================
+
+function previousNumberLesson() {
+
+    if (
+        selectedNumberIndex > 0
+    ) {
+
+        selectNumberLesson(
+            selectedNumberIndex - 1
+        );
+    }
+}
+
+
+// ============================================================
+// NEXT NUMBER
+// ============================================================
+
+function nextNumberLesson() {
+
+    if (
+        selectedNumberIndex <
+        lessonNumbers.length - 1
+    ) {
+
+        selectNumberLesson(
+            selectedNumberIndex + 1
+        );
+
+        return;
+    }
+
+    const complete =
+        document.getElementById(
+            "numbersCompleteBox"
+        );
+
+    if (complete) {
+
+        complete.classList.add(
+            "show"
+        );
+    }
+}
+
+
+// ============================================================
+// NUMBERS PROGRESS
+// ============================================================
+
+function updateNumbersProgress() {
+
+    const text =
+        document.getElementById(
+            "numbersProgressText"
+        );
+
+    const bar =
+        document.getElementById(
+            "numbersProgressBar"
+        );
+
+    const percentage =
+        (
+            learnedNumbers.size /
+            lessonNumbers.length
+        ) * 100;
+
+    if (text) {
+
+        text.innerText =
+            `${learnedNumbers.size} / ${lessonNumbers.length}`;
+    }
+
+    if (bar) {
+
+        bar.style.width =
+            `${percentage}%`;
+    }
+
+    updateNumbersGrid();
+}
+
+
+// ============================================================
+// COMMON WORDS
+// ============================================================
+
+const lessonWords = [
+
+    {
+        key: "HELLO",
+        icon: "👋",
+        description:
+            "A friendly greeting.",
+        file: "hello.gif"
+    },
+
+    {
+        key: "YES",
+        icon: "👍",
+        description:
+            "Used to agree or confirm.",
+        file: "yes.gif"
+    },
+
+    {
+        key: "NO",
+        icon: "👎",
+        description:
+            "Used to disagree or refuse.",
+        file: "no.gif"
+    },
+
+    {
+        key: "HELP",
+        icon: "🆘",
+        description:
+            "Used when asking for assistance.",
+        file: "help.gif"
+    },
+
+    {
+        key: "THANK YOU",
+        icon: "🙏",
+        description:
+            "Used to express gratitude.",
+        file: "thankyou.gif"
+    }
+];
+
+let selectedWordIndex = 0;
+
+let learnedWords = new Set();
+
+let wordPracticeStream = null;
+
+let wordPracticeRunning = false;
+
+let wordPracticeHands = null;
+
+let wordPredictionBusy = false;
+
+let wordStablePrediction = null;
+
+let wordStableCount = 0;
+
+const WORD_STABLE_REQUIRED = 4;
+
+
+// ============================================================
+// OPEN WORDS LESSON
+// ============================================================
+
+function openWordsLesson() {
+
+    const modal =
+        document.getElementById(
+            "wordsLessonModal"
+        );
+
+    if (!modal) {
+
+        console.error(
+            "Words lesson modal not found."
+        );
+
+        return;
+    }
+
+    modal.classList.add("active");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    createWordsGrid();
+
+    selectWordLesson(
+        selectedWordIndex
+    );
+
+    updateWordsProgress();
+
+    stopWordPractice();
+}
+
+
+// ============================================================
+// CLOSE WORDS LESSON
+// ============================================================
+
+function closeWordsLesson() {
+
+    stopWordPractice();
+
+    const modal =
+        document.getElementById(
+            "wordsLessonModal"
+        );
+
+    if (modal) {
+
+        modal.classList.remove(
+            "active"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+}
+
+
+// ============================================================
+// CREATE WORD GRID
+// ============================================================
+
+function createWordsGrid() {
+
+    const grid =
+        document.getElementById(
+            "wordsGrid"
+        );
+
+    if (!grid) {
+        return;
+    }
+
+    grid.innerHTML = "";
+
+    lessonWords.forEach(
+        function (word, index) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.type = "button";
+
+            button.className =
+                "word-item";
+
+            button.innerHTML = `
+                <span class="word-item-icon">
+                    ${word.icon}
+                </span>
+
+                <span class="word-item-label">
+                    ${word.key}
+                </span>
+            `;
+
+            button.onclick =
+                function () {
+
+                    selectWordLesson(
+                        index
+                    );
+                };
+
+            grid.appendChild(
+                button
+            );
+        }
+    );
+
+    updateWordsGrid();
+}
+
+
+// ============================================================
+// SELECT WORD
+// ============================================================
+
+function selectWordLesson(index) {
+
+    if (
+        index < 0 ||
+        index >= lessonWords.length
+    ) {
+        return;
+    }
+
+    stopWordPractice();
+
+    selectedWordIndex =
+        index;
+
+    const word =
+        lessonWords[index];
+
+    const icon =
+        document.getElementById(
+            "selectedWordIcon"
+        );
+
+    const title =
+        document.getElementById(
+            "selectedWordTitle"
+        );
+
+    const description =
+        document.getElementById(
+            "selectedWordDescription"
+        );
+
+    const preview =
+        document.getElementById(
+            "wordLessonPreview"
+        );
+
+    if (icon) {
+
+        icon.innerText =
+            word.icon;
+    }
+
+    if (title) {
+
+        title.innerText =
+            word.key;
+    }
+
+    if (description) {
+
+        description.innerText =
+            word.description;
+    }
+
+    if (preview) {
+
+        preview.innerHTML = "";
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.src =
+            `assets/signs/${word.file}`;
+
+        image.alt =
+            `${word.key} sign`;
+
+        image.className =
+            "word-sign-image";
+
+        image.onerror =
+            function () {
+
+                preview.innerHTML = `
+                    <div class="word-placeholder">
+
+                        <span>
+                            ${word.icon}
+                        </span>
+
+                        <p>
+                            ${word.key}
+                        </p>
+
+                        <small>
+                            Sign preview unavailable.
+                        </small>
+
+                    </div>
+                `;
+            };
+
+        preview.appendChild(
+            image
+        );
+    }
+
+    const counter =
+        document.getElementById(
+            "wordLessonCounter"
+        );
+
+    if (counter) {
+
+        counter.innerText =
+            `${index + 1} / ${lessonWords.length}`;
+    }
+
+    updateWordsGrid();
+}
+
+
+// ============================================================
+// UPDATE WORD GRID
+// ============================================================
+
+function updateWordsGrid() {
+
+    document
+        .querySelectorAll(
+            ".word-item"
+        )
+        .forEach(
+            function (button, index) {
+
+                button.classList.toggle(
+                    "selected",
+                    index === selectedWordIndex
+                );
+
+                button.classList.toggle(
+                    "learned",
+                    learnedWords.has(
+                        lessonWords[index].key
+                    )
+                );
+            }
+        );
+}
+
+
+// ============================================================
+// PREVIOUS WORD
+// ============================================================
+
+function previousWordLesson() {
+
+    if (
+        selectedWordIndex > 0
+    ) {
+
+        selectWordLesson(
+            selectedWordIndex - 1
+        );
+    }
+}
+
+
+// ============================================================
+// NEXT WORD
+// ============================================================
+
+function nextWordLesson() {
+
+    if (
+        selectedWordIndex <
+        lessonWords.length - 1
+    ) {
+
+        selectWordLesson(
+            selectedWordIndex + 1
+        );
+
+        return;
+    }
+
+    updateWordsProgress();
+}
+
+
+// ============================================================
+// WORD PROGRESS
+// ============================================================
+
+function updateWordsProgress() {
+
+    const text =
+        document.getElementById(
+            "wordsProgressText"
+        );
+
+    const bar =
+        document.getElementById(
+            "wordsProgressBar"
+        );
+
+    const percentage =
+        (
+            learnedWords.size /
+            lessonWords.length
+        ) * 100;
+
+    if (text) {
+
+        text.innerText =
+            `${learnedWords.size} / ${lessonWords.length}`;
+    }
+
+    if (bar) {
+
+        bar.style.width =
+            `${percentage}%`;
+    }
+
+    updateWordsGrid();
+}
+
+
+// ============================================================
+// NUMBER AI PRACTICE
+// ============================================================
+
+async function startNumberPractice() {
+
+    const area =
+        document.getElementById(
+            "numberPracticeArea"
+        );
+
+    const video =
+        document.getElementById(
+            "numberPracticeVideo"
+        );
+
+    const message =
+        document.getElementById(
+            "numberPracticeMessage"
+        );
+
+    if (!area || !video) {
+
+        console.error(
+            "Number practice elements not found."
+        );
+
+        return;
+    }
+
+    area.classList.add(
+        "active"
+    );
+
+    numberStablePrediction = null;
+    numberStableCount = 0;
+
+    if (message) {
+
+        message.innerText =
+            `Starting camera... Show number ${lessonNumbers[selectedNumberIndex].value}.`;
+    }
+
+    try {
+
+        if (
+            typeof Hands ===
+            "undefined"
+        ) {
+
+            await loadMediaPipeScript();
+        }
+
+        if (!numberPracticeHands) {
+
+            numberPracticeHands =
+                new Hands({
+
+                    locateFile:
+                        function (file) {
+
+                            return (
+                                "https://cdn.jsdelivr.net/npm/" +
+                                "@mediapipe/hands/" +
+                                file
+                            );
+                        }
+                });
+
+            numberPracticeHands.setOptions({
+
+                maxNumHands: 1,
+
+                modelComplexity: 1,
+
+                minDetectionConfidence: 0.5,
+
+                minTrackingConfidence: 0.5
+
+            });
+
+            numberPracticeHands.onResults(
+                onNumberPracticeResults
+            );
+        }
+
+        numberPracticeStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: {
+
+                    width: {
+                        ideal: 640
+                    },
+
+                    height: {
+                        ideal: 480
+                    },
+
+                    facingMode: "user"
+
+                },
+
+                audio: false
+
+            });
+
+        video.srcObject =
+            numberPracticeStream;
+
+        await video.play();
+
+        numberPracticeRunning =
+            true;
+
+        if (message) {
+
+            message.innerText =
+                `Camera active. Show number ${lessonNumbers[selectedNumberIndex].value}.`;
+        }
+
+        processNumberPracticeFrame();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Number practice error:",
+            error
+        );
+
+        if (message) {
+
+            message.innerText =
+                "Could not access the camera. Please allow camera permission.";
+        }
+    }
+}
+
+
+// ============================================================
+// NUMBER PRACTICE FRAME
+// ============================================================
+
+async function processNumberPracticeFrame() {
+
+    if (!numberPracticeRunning) {
+        return;
+    }
+
+    const video =
+        document.getElementById(
+            "numberPracticeVideo"
+        );
+
+    if (
+        !video ||
+        !numberPracticeHands
+    ) {
+        return;
+    }
+
+    try {
+
+        if (
+            video.readyState >= 2
+        ) {
+
+            await numberPracticeHands.send({
+
+                image: video
+
+            });
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Number MediaPipe error:",
+            error
+        );
+    }
+
+    if (numberPracticeRunning) {
+
+        requestAnimationFrame(
+            processNumberPracticeFrame
+        );
+    }
+}
+
+
+// ============================================================
+// NUMBER PRACTICE RESULTS
+// ============================================================
+
+function onNumberPracticeResults(
+    results
+) {
+
+    if (!numberPracticeRunning) {
+        return;
+    }
+
+    if (
+        !results.multiHandLandmarks ||
+        results.multiHandLandmarks.length === 0
+    ) {
+
+        updateNumberPracticeDisplay(
+            "—",
+            0,
+            "Show your hand clearly to the camera."
+        );
+
+        return;
+    }
+
+    const landmarks =
+        results.multiHandLandmarks[0];
+
+    const features =
+        extractFeatures(
+            landmarks
+        );
+
+    if (!features) {
+        return;
+    }
+
+    predictNumberSign(
+        features
+    );
+}
+
+
+// ============================================================
+// PREDICT NUMBER
+// ============================================================
+
+async function predictNumberSign(
+    features
+) {
+
+    if (numberPredictionBusy) {
+        return;
+    }
+
+    numberPredictionBusy =
+        true;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/predict`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        features:
+                            features
+
+                    })
+
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Prediction failed."
+            );
+        }
+
+        if (
+            data.status !==
+            "success"
+        ) {
+
+            updateNumberPracticeDisplay(
+                "—",
+                0,
+                "The current model could not recognize this sign."
+            );
+
+            return;
+        }
+
+        const prediction =
+            String(
+                data.sign
+            ).toUpperCase();
+
+        const confidence =
+            Number(
+                data.confidence || 0
+            );
+
+        const percentage =
+            confidence <= 1
+                ? confidence * 100
+                : confidence;
+
+        updateNumberPracticeDisplay(
+            prediction,
+            percentage,
+            "AI is analyzing your sign..."
+        );
+
+        if (
+            prediction ===
+            String(
+                lessonNumbers[
+                    selectedNumberIndex
+                ].value
+            )
+        ) {
+
+            if (
+                numberStablePrediction ===
+                prediction
+            ) {
+
+                numberStableCount++;
+
+            }
+            else {
+
+                numberStablePrediction =
+                    prediction;
+
+                numberStableCount = 1;
+            }
+
+            if (
+                numberStableCount >=
+                NUMBER_STABLE_REQUIRED
+            ) {
+
+                learnedNumbers.add(
+                    lessonNumbers[
+                        selectedNumberIndex
+                    ].value
+                );
+
+                updateNumbersProgress();
+
+                updateNumberPracticeDisplay(
+                    prediction,
+                    percentage,
+                    "✓ Correct! Number learned! 🎉"
+                );
+
+                numberStableCount = 0;
+            }
+
+        }
+        else {
+
+            numberStablePrediction =
+                prediction;
+
+            numberStableCount = 0;
+
+            updateNumberPracticeDisplay(
+                prediction,
+                percentage,
+                `AI sees ${prediction}. Try number ${lessonNumbers[selectedNumberIndex].value}.`
+            );
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Number prediction error:",
+            error
+        );
+
+        updateNumberPracticeDisplay(
+            "—",
+            0,
+            "Unable to connect to the AI model."
+        );
+
+    }
+    finally {
+
+        numberPredictionBusy =
+            false;
+    }
+}
+
+
+// ============================================================
+// NUMBER PRACTICE DISPLAY
+// ============================================================
+
+function updateNumberPracticeDisplay(
+    prediction,
+    confidence,
+    message
+) {
+
+    const predictionElement =
+        document.getElementById(
+            "numberPrediction"
+        );
+
+    const confidenceElement =
+        document.getElementById(
+            "numberConfidence"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "numberPracticeMessage"
+        );
+
+    if (predictionElement) {
+
+        predictionElement.innerText =
+            prediction;
+    }
+
+    if (confidenceElement) {
+
+        confidenceElement.innerText =
+            `${Number(confidence).toFixed(1)}%`;
+    }
+
+    if (messageElement) {
+
+        messageElement.innerText =
+            message;
+    }
+}
+
+
+// ============================================================
+// STOP NUMBER PRACTICE
+// ============================================================
+
+function stopNumberPractice() {
+
+    numberPracticeRunning =
+        false;
+
+    numberPredictionBusy =
+        false;
+
+    numberStablePrediction =
+        null;
+
+    numberStableCount =
+        0;
+
+    if (numberPracticeStream) {
+
+        numberPracticeStream
+            .getTracks()
+            .forEach(
+                function (track) {
+
+                    track.stop();
+                }
+            );
+
+        numberPracticeStream =
+            null;
+    }
+
+    const video =
+        document.getElementById(
+            "numberPracticeVideo"
+        );
+
+    if (video) {
+
+        video.srcObject =
+            null;
+    }
+
+    const area =
+        document.getElementById(
+            "numberPracticeArea"
+        );
+
+    if (area) {
+
+        area.classList.remove(
+            "active"
+        );
+    }
+}
+
+
+// ============================================================
+// WORD AI PRACTICE
+// ============================================================
+
+async function startWordPractice() {
+
+    const area =
+        document.getElementById(
+            "wordPracticeArea"
+        );
+
+    const video =
+        document.getElementById(
+            "wordPracticeVideo"
+        );
+
+    const message =
+        document.getElementById(
+            "wordPracticeMessage"
+        );
+
+    if (!area || !video) {
+
+        console.error(
+            "Word practice elements not found."
+        );
+
+        return;
+    }
+
+    area.classList.add(
+        "active"
+    );
+
+    wordStablePrediction =
+        null;
+
+    wordStableCount =
+        0;
+
+    if (message) {
+
+        message.innerText =
+            `Starting camera... Show the sign for ${lessonWords[selectedWordIndex].key}.`;
+    }
+
+    try {
+
+        if (
+            typeof Hands ===
+            "undefined"
+        ) {
+
+            await loadMediaPipeScript();
+        }
+
+        if (!wordPracticeHands) {
+
+            wordPracticeHands =
+                new Hands({
+
+                    locateFile:
+                        function (file) {
+
+                            return (
+                                "https://cdn.jsdelivr.net/npm/" +
+                                "@mediapipe/hands/" +
+                                file
+                            );
+                        }
+                });
+
+            wordPracticeHands.setOptions({
+
+                maxNumHands: 1,
+
+                modelComplexity: 1,
+
+                minDetectionConfidence: 0.5,
+
+                minTrackingConfidence: 0.5
+
+            });
+
+            wordPracticeHands.onResults(
+                onWordPracticeResults
+            );
+        }
+
+        wordPracticeStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: {
+
+                    width: {
+                        ideal: 640
+                    },
+
+                    height: {
+                        ideal: 480
+                    },
+
+                    facingMode: "user"
+
+                },
+
+                audio: false
+
+            });
+
+        video.srcObject =
+            wordPracticeStream;
+
+        await video.play();
+
+        wordPracticeRunning =
+            true;
+
+        if (message) {
+
+            message.innerText =
+                `Camera active. Show the sign for ${lessonWords[selectedWordIndex].key}.`;
+        }
+
+        processWordPracticeFrame();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Word practice error:",
+            error
+        );
+
+        if (message) {
+
+            message.innerText =
+                "Could not access the camera. Please allow camera permission.";
+        }
+    }
+}
+
+
+// ============================================================
+// WORD PRACTICE FRAME
+// ============================================================
+
+async function processWordPracticeFrame() {
+
+    if (!wordPracticeRunning) {
+        return;
+    }
+
+    const video =
+        document.getElementById(
+            "wordPracticeVideo"
+        );
+
+    if (
+        !video ||
+        !wordPracticeHands
+    ) {
+        return;
+    }
+
+    try {
+
+        if (
+            video.readyState >= 2
+        ) {
+
+            await wordPracticeHands.send({
+
+                image: video
+
+            });
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Word MediaPipe error:",
+            error
+        );
+    }
+
+    if (wordPracticeRunning) {
+
+        requestAnimationFrame(
+            processWordPracticeFrame
+        );
+    }
+}
+
+
+// ============================================================
+// WORD PRACTICE RESULTS
+// ============================================================
+
+function onWordPracticeResults(
+    results
+) {
+
+    if (!wordPracticeRunning) {
+        return;
+    }
+
+    if (
+        !results.multiHandLandmarks ||
+        results.multiHandLandmarks.length === 0
+    ) {
+
+        updateWordPracticeDisplay(
+            "—",
+            0,
+            "Show your hand clearly to the camera."
+        );
+
+        return;
+    }
+
+    const landmarks =
+        results.multiHandLandmarks[0];
+
+    const features =
+        extractFeatures(
+            landmarks
+        );
+
+    if (!features) {
+        return;
+    }
+
+    predictWordSign(
+        features
+    );
+}
+
+
+// ============================================================
+// PREDICT WORD
+// ============================================================
+
+async function predictWordSign(
+    features
+) {
+
+    if (wordPredictionBusy) {
+        return;
+    }
+
+    wordPredictionBusy =
+        true;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/predict`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        features:
+                            features
+
+                    })
+
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Prediction failed."
+            );
+        }
+
+        if (
+            data.status !==
+            "success"
+        ) {
+
+            updateWordPracticeDisplay(
+                "—",
+                0,
+                "The current model could not recognize this sign."
+            );
+
+            return;
+        }
+
+        const prediction =
+            String(
+                data.sign
+            ).toUpperCase();
+
+        const confidence =
+            Number(
+                data.confidence || 0
+            );
+
+        const percentage =
+            confidence <= 1
+                ? confidence * 100
+                : confidence;
+
+        updateWordPracticeDisplay(
+            prediction,
+            percentage,
+            "AI is analyzing your sign..."
+        );
+
+        const target =
+            lessonWords[
+                selectedWordIndex
+            ].key;
+
+        if (
+            prediction ===
+            target
+        ) {
+
+            if (
+                wordStablePrediction ===
+                prediction
+            ) {
+
+                wordStableCount++;
+
+            }
+            else {
+
+                wordStablePrediction =
+                    prediction;
+
+                wordStableCount =
+                    1;
+            }
+
+            if (
+                wordStableCount >=
+                WORD_STABLE_REQUIRED
+            ) {
+
+                learnedWords.add(
+                    target
+                );
+
+                updateWordsProgress();
+
+                updateWordPracticeDisplay(
+                    prediction,
+                    percentage,
+                    "✓ Correct! Word learned! 🎉"
+                );
+
+                wordStableCount =
+                    0;
+            }
+
+        }
+        else {
+
+            wordStablePrediction =
+                prediction;
+
+            wordStableCount =
+                0;
+
+            updateWordPracticeDisplay(
+                prediction,
+                percentage,
+                `AI sees ${prediction}. Try the sign for ${target}.`
+            );
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Word prediction error:",
+            error
+        );
+
+        updateWordPracticeDisplay(
+            "—",
+            0,
+            "Unable to connect to the AI model."
+        );
+
+    }
+    finally {
+
+        wordPredictionBusy =
+            false;
+    }
+}
+
+
+// ============================================================
+// WORD PRACTICE DISPLAY
+// ============================================================
+
+function updateWordPracticeDisplay(
+    prediction,
+    confidence,
+    message
+) {
+
+    const predictionElement =
+        document.getElementById(
+            "wordPrediction"
+        );
+
+    const confidenceElement =
+        document.getElementById(
+            "wordConfidence"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "wordPracticeMessage"
+        );
+
+    if (predictionElement) {
+
+        predictionElement.innerText =
+            prediction;
+    }
+
+    if (confidenceElement) {
+
+        confidenceElement.innerText =
+            `${Number(confidence).toFixed(1)}%`;
+    }
+
+    if (messageElement) {
+
+        messageElement.innerText =
+            message;
+    }
+}
+
+
+// ============================================================
+// STOP WORD PRACTICE
+// ============================================================
+
+function stopWordPractice() {
+
+    wordPracticeRunning =
+        false;
+
+    wordPredictionBusy =
+        false;
+
+    wordStablePrediction =
+        null;
+
+    wordStableCount =
+        0;
+
+    if (wordPracticeStream) {
+
+        wordPracticeStream
+            .getTracks()
+            .forEach(
+                function (track) {
+
+                    track.stop();
+                }
+            );
+
+        wordPracticeStream =
+            null;
+    }
+
+    const video =
+        document.getElementById(
+            "wordPracticeVideo"
+        );
+
+    if (video) {
+
+        video.srcObject =
+            null;
+    }
+
+    const area =
+        document.getElementById(
+            "wordPracticeArea"
+        );
+
+    if (area) {
+
+        area.classList.remove(
+            "active"
+        );
+    }
+}
+
+
+// ============================================================
+// AI PRACTICE LESSON
+// ============================================================
+
+function openAIPractice() {
+
+    const modal =
+        document.getElementById(
+            "aiPracticeModal"
+        );
+
+    if (!modal) {
+
+        console.error(
+            "AI Practice modal not found."
+        );
+
+        return;
+    }
+
+    modal.classList.add(
+        "active"
+    );
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    const info =
+        document.getElementById(
+            "aiPracticeInfo"
+        );
+
+    if (info) {
+
+        info.innerText =
+            "Choose a category below to begin AI practice.";
+    }
+}
+
+
+// ============================================================
+// CLOSE AI PRACTICE
+// ============================================================
+
+function closeAIPractice() {
+
+    const modal =
+        document.getElementById(
+            "aiPracticeModal"
+        );
+
+    if (modal) {
+
+        modal.classList.remove(
+            "active"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+    stopAlphabetPractice();
+
+    stopNumberPractice();
+
+    stopWordPractice();
+}
+
+
+// ============================================================
+// START AI ALPHABET PRACTICE
+// ============================================================
+
+function startAIAlphabetPractice() {
+
+    closeAIPractice();
+
+    openAlphabetLesson();
+
+    setTimeout(
+        function () {
+
+            startAlphabetPractice();
+
+        },
+        300
+    );
+}
+
+
+// ============================================================
+// START AI WORD PRACTICE
+// ============================================================
+
+function startAIWordPractice() {
+
+    closeAIPractice();
+
+    openWordsLesson();
+
+    setTimeout(
+        function () {
+
+            startWordPractice();
+
+        },
+        300
+    );
+}
+
+
+// ============================================================
+// START AI NUMBER PRACTICE
+// ============================================================
+
+function startAINumberPractice() {
+
+    closeAIPractice();
+
+    openNumbersLesson();
+
+    setTimeout(
+        function () {
+
+            startNumberPractice();
+
+        },
+        300
+    );
+}
+
+
+// ============================================================
+// NUMBER AI MESSAGE
+// ============================================================
+
+function showNumberAIMessage() {
+
+    const info =
+        document.getElementById(
+            "aiPracticeInfo"
+        );
+
+    if (info) {
+
+        info.innerText =
+            "🔢 Number AI Practice is available. Select Numbers to start practicing.";
+    }
+
+    startAINumberPractice();
+}
+
 
 // ============================================================
 // BUTTON CONNECTIONS
@@ -2578,6 +4573,54 @@ function connectButtons() {
         chatButton.onclick =
             sendMessage;
     }
+    // ========================================================
+    // NUMBERS LESSON
+    // ========================================================
+
+    const numbersButton =
+        document.querySelector(
+            '[onclick="openNumbersLesson()"]'
+        );
+
+    if (numbersButton) {
+
+        numbersButton.onclick =
+            openNumbersLesson;
+    }
+
+
+    // ========================================================
+    // WORDS LESSON
+    // ========================================================
+
+    const wordsButton =
+        document.querySelector(
+            '[onclick="openWordsLesson()"]'
+        );
+
+    if (wordsButton) {
+
+        wordsButton.onclick =
+            openWordsLesson;
+    }
+
+
+    // ========================================================
+    // AI PRACTICE LESSON
+    // ========================================================
+
+    const aiPracticeButton =
+        document.querySelector(
+            '[onclick="openAIPractice()"]'
+        );
+
+    if (aiPracticeButton) {
+
+        aiPracticeButton.onclick =
+            openAIPractice;
+    }
+
+
 }
 
 // ============================================================
@@ -2604,17 +4647,47 @@ document.addEventListener(
 
         updateCameraUI(false);
 
-        // Prepare alphabet lesson
-        if (
-            document.getElementById(
-                "alphabetLessonModal"
-            )
-        ) {
-            createAlphabetGrid();
-        }
+        // ========================================================
+// PREPARE LEARNING LESSONS
+// ========================================================
 
-        connectButtons();
+if (
+    document.getElementById(
+        "alphabetLessonModal"
+    )
+) {
 
+    createAlphabetGrid();
+
+    updateAlphabetProgress();
+}
+
+
+if (
+    document.getElementById(
+        "numbersLessonModal"
+    )
+) {
+
+    createNumbersGrid();
+
+    updateNumbersProgress();
+}
+
+
+if (
+    document.getElementById(
+        "wordsLessonModal"
+    )
+) {
+
+    createWordsGrid();
+
+    updateWordsProgress();
+}
+
+
+connectButtons();
         updateSentence();
 
         // Test Flask

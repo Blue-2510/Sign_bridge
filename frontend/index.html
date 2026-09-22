@@ -153,6 +153,19 @@
 .word-placeholder{text-align:center;color:#71839a}
 .word-placeholder span{display:block;font-size:58px;margin-bottom:8px}
 .word-placeholder p{margin:0}
+.number-practice-box{
+    margin-top:24px;padding:22px;border-radius:18px;background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);text-align:center
+}
+.number-practice-box h3{margin:0 0 7px;color:#fff}
+.number-practice-box>p{margin:0 auto 16px;color:#8da2ba;max-width:650px}
+.number-practice-area{display:none;margin-top:20px}
+.number-practice-area.active{display:block}
+.number-item-value{display:block;font-size:20px}
+.number-item-label{display:block;color:#8da2ba;font-size:10px;font-weight:600;margin-top:4px}
+.word-item-icon{display:block;font-size:24px;margin-bottom:4px}
+.word-item-label{display:block;font-size:11px}
+
 .word-practice-box{
     margin-top:24px;padding:22px;border-radius:18px;background:rgba(255,255,255,.035);
     border:1px solid rgba(255,255,255,.08);text-align:center
@@ -1375,6 +1388,40 @@
             <p>You completed the numbers learning lesson.</p>
         </div>
 
+        <div class="number-practice-box">
+            <h3>🤖 Practice This Number with AI</h3>
+            <p>Show the selected number sign to your camera and let SignBridge AI check the prediction.</p>
+            <button type="button" class="primary-btn" onclick="startNumberPractice()">
+                🎥 Start AI Practice
+            </button>
+
+            <div id="numberPracticeArea" class="number-practice-area">
+                <div class="word-camera-container">
+                    <video id="numberPracticeVideo" autoplay playsinline muted></video>
+                    <canvas id="numberPracticeCanvas"></canvas>
+                </div>
+
+                <div class="word-practice-result">
+                    <div class="practice-prediction">
+                        <span>AI Prediction</span>
+                        <strong id="numberPrediction">—</strong>
+                    </div>
+                    <div class="practice-confidence">
+                        <span>Confidence</span>
+                        <strong id="numberConfidence">0%</strong>
+                    </div>
+                </div>
+
+                <div id="numberPracticeMessage" class="alphabet-practice-message">
+                    Show the selected number sign to the camera.
+                </div>
+
+                <button type="button" class="outline-button" onclick="stopNumberPractice()">
+                    Stop Practice
+                </button>
+            </div>
+        </div>
+
         <div class="lesson-actions">
             <button type="button" class="outline-button" onclick="closeNumbersLesson()">Close Lesson</button>
         </div>
@@ -1498,11 +1545,11 @@
                 <small>Practice supported words</small>
             </button>
 
-            <button type="button" class="ai-practice-choice disabled-choice"
-                    onclick="showNumberAIMessage()">
+            <button type="button" class="ai-practice-choice"
+                    onclick="startAINumberPractice()">
                 <span>🔢</span>
                 <strong>Numbers</strong>
-                <small>Learning mode available</small>
+                <small>Practice 1–10 with AI</small>
             </button>
         </div>
 
@@ -1836,3 +1883,5 @@
 
 
 </body>
+
+</html>
