@@ -56,6 +56,57 @@
 .text-sign-controls button:disabled { opacity:.45; cursor:not-allowed; }
 @media (max-width:900px) { .text-sign-grid { grid-template-columns:1fr; } }
 @media (max-width:600px) { .text-sign-card { padding:20px; } .text-sign-actions { flex-direction:column; } .text-sign-actions button { width:100%; } }
+.number-reference-card {
+    margin: 20px 0;
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.08);
+    text-align: center;
+}
+
+.number-card-title {
+    color: #dbeafe;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.number-reference-image-container {
+    width: 100%;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #07111f;
+    border: 1px solid rgba(120,160,200,.15);
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+.number-reference-image-container img {
+    max-width: 100%;
+    max-height: 280px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.number-reference-label {
+    margin-top: 14px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.number-reference-hint {
+    margin: 8px 0 0;
+    color: #8da2ba;
+    font-size: 13px;
+}
 
 /* ALPHABET LESSON MODAL */
 .lesson-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(2,8,18,.82);backdrop-filter:blur(10px)}
@@ -1471,6 +1522,26 @@
                     Focus on the hand position and keep your movement clear.
                 </div>
             </div>
+        </div>
+
+        <div class="number-reference-card">
+            <div class="number-card-title">👀 Learn the Sign</div>
+        
+            <div class="number-reference-image-container">
+                <img
+                    id="numberReferenceImage"
+                    src="assets/numbers/1.jpg"
+                    alt="Sign language demonstration for number 1"
+                >
+            </div>
+        
+            <div class="number-reference-label">
+                Number <strong id="numberReferenceNumber">1</strong>
+            </div>
+        
+            <p class="number-reference-hint">
+                Copy the hand position shown in the image.
+            </p>
         </div>
 
         <div id="numbersGrid" class="numbers-grid"></div>

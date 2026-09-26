@@ -3125,6 +3125,34 @@ function selectNumberLesson(index) {
     const number =
         lessonNumbers[index];
 
+        const referenceImage =
+        document.getElementById("numberReferenceImage");
+    
+    const referenceNumber =
+        document.getElementById("numberReferenceNumber");
+    
+    if (referenceImage) {
+        const numberValue = number.value;
+    
+        const imagePath =
+            `./assets/numbers/${numberValue}.jpg`;
+    
+        referenceImage.src = imagePath;
+    
+        referenceImage.alt =
+            `Sign language demonstration for number ${numberValue}`;
+    
+        referenceImage.onerror = function () {
+            console.error(
+                `❌ Could not load number sign image: ${imagePath}`
+            );
+        };
+    }
+    
+    if (referenceNumber) {
+        referenceNumber.textContent = number.value;
+    }    
+
     const selected =
         document.getElementById(
             "selectedNumber"
