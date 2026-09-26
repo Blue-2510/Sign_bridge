@@ -138,17 +138,13 @@ button {
 
 
 .nav-container {
-
-    height: 76px;
+    width: min(100% - 40px, 1400px);
+    margin: 0 auto;
 
     display: flex;
-
     align-items: center;
 
-    justify-content: space-between;
-
-    gap: 30px;
-
+    gap: 32px;
 }
 
 
@@ -212,24 +208,23 @@ button {
 
 
 .nav-links {
-
     display: flex;
-
     align-items: center;
+    justify-content: center;
 
     gap: 28px;
 
+    flex: 1;
 }
 
 
 .nav-links a {
+    display: inline-flex;
+    align-items: center;
 
-    color: var(--muted);
+    white-space: nowrap;
 
-    font-size: 14px;
-
-    transition: 0.25s;
-
+    text-decoration: none;
 }
 
 
