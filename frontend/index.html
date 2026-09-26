@@ -108,6 +108,207 @@
     font-size: 13px;
 }
 
+/* ============================================================
+   NUMBER PRACTICE - SIDE BY SIDE
+============================================================ */
+
+.number-practice-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-top: 22px;
+}
+
+
+/* LEARN THE SIGN */
+
+.number-reference-card,
+.number-camera-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.08);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.number-card-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+.number-reference-image-container {
+    width: 100%;
+    height: 380px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    border-radius: 18px;
+
+    background: #07111f;
+    border: 1px solid rgba(120,160,200,.15);
+
+    padding: 14px;
+    box-sizing: border-box;
+}
+
+.number-reference-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.number-reference-label {
+    margin-top: 14px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.number-reference-hint {
+    margin: 8px 0 0;
+    color: #9fb0c4;
+    font-size: 13px;
+}
+
+
+/* CAMERA */
+
+.number-camera-container {
+    position: relative;
+
+    width: 100%;
+    height: 380px;
+
+    overflow: hidden;
+    border-radius: 18px;
+
+    background: #050b16;
+    border: 1px solid rgba(255,255,255,.12);
+}
+
+#numberPracticeVideo {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transform: scaleX(-1);
+}
+
+#numberPracticeCanvas {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+}
+
+.number-camera-status {
+    margin-top: 12px;
+    color: #dbeafe;
+    font-size: 13px;
+}
+
+
+/* AI RESULT */
+
+.number-ai-result {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 14px;
+
+    max-width: 100%;
+    margin: 20px auto 16px;
+}
+
+.number-result-item {
+    padding: 16px;
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+
+    text-align: center;
+}
+
+.number-result-label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #8da2ba;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.number-result-item strong {
+    display: block;
+
+    color: #fff;
+
+    font-size: 30px;
+    line-height: 1;
+}
+
+
+/* MESSAGE */
+
+.number-practice-message {
+    max-width: 100%;
+
+    margin: 0 auto 16px;
+
+    padding: 13px 16px;
+
+    border-radius: 12px;
+
+    background: rgba(0,171,228,.08);
+    border: 1px solid rgba(0,171,228,.18);
+
+    color: #dbeafe;
+
+    text-align: center;
+
+    font-size: 14px;
+}
+
+
+/* MOBILE */
+
+@media(max-width:800px) {
+
+    .number-practice-content {
+        grid-template-columns: 1fr;
+    }
+
+    .number-reference-image-container,
+    .number-camera-container {
+        height: 320px;
+    }
+
+    .number-ai-result {
+        grid-template-columns: 1fr;
+    }
+
+}
+
 /* ALPHABET LESSON MODAL */
 .lesson-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(2,8,18,.82);backdrop-filter:blur(10px)}
 .lesson-modal.active{display:flex}
@@ -1578,30 +1779,116 @@
             </button>
 
             <div id="numberPracticeArea" class="number-practice-area">
-                <div class="word-camera-container">
-                    <video id="numberPracticeVideo" autoplay playsinline muted></video>
-                    <canvas id="numberPracticeCanvas"></canvas>
-                </div>
 
-                <div class="word-practice-result">
-                    <div class="practice-prediction">
-                        <span>AI Prediction</span>
-                        <strong id="numberPrediction">—</strong>
+                <div class="number-practice-content">
+            
+                    <!-- SIGN REFERENCE -->
+                    <div class="number-reference-card">
+            
+                        <div class="number-card-title">
+                            👀 Learn the Sign
+                        </div>
+            
+                        <div class="number-reference-image-container">
+                            <img
+                                id="numberReferenceImage"
+                                src="assets/numbers/1.jpg"
+                                alt="Sign language demonstration for number 1"
+                            >
+                        </div>
+            
+                        <div class="number-reference-label">
+                            Number <strong id="numberReferenceNumber">1</strong>
+                        </div>
+            
+                        <p class="number-reference-hint">
+                            Copy the hand position shown in the image.
+                        </p>
+            
                     </div>
-                    <div class="practice-confidence">
-                        <span>Confidence</span>
-                        <strong id="numberConfidence">0%</strong>
+            
+            
+                    <!-- CAMERA PRACTICE -->
+                    <div class="number-camera-card">
+            
+                        <div class="number-card-title">
+                            🎥 Your Practice
+                        </div>
+            
+                        <div class="number-camera-container">
+            
+                            <video
+                                id="numberPracticeVideo"
+                                autoplay
+                                playsinline
+                                muted
+                            ></video>
+            
+                            <canvas
+                                id="numberPracticeCanvas"
+                            ></canvas>
+            
+                        </div>
+            
+                        <div class="number-camera-status">
+                            🟢 Camera active
+                        </div>
+            
                     </div>
+            
                 </div>
-
-                <div id="numberPracticeMessage" class="alphabet-practice-message">
+            
+            
+                <!-- AI RESULT -->
+                <div class="number-ai-result">
+            
+                    <div class="number-result-item">
+            
+                        <span class="number-result-label">
+                            AI Prediction
+                        </span>
+            
+                        <strong id="numberPrediction">
+                            —
+                        </strong>
+            
+                    </div>
+            
+                    <div class="number-result-item">
+            
+                        <span class="number-result-label">
+                            Confidence
+                        </span>
+            
+                        <strong id="numberConfidence">
+                            0%
+                        </strong>
+            
+                    </div>
+            
+                </div>
+            
+            
+                <!-- MESSAGE -->
+                <div
+                    id="numberPracticeMessage"
+                    class="number-practice-message"
+                >
                     Show the selected number sign to the camera.
                 </div>
-
-                <button type="button" class="outline-button" onclick="stopNumberPractice()">
+            
+            
+                <button
+                    type="button"
+                    class="outline-button"
+                    onclick="stopNumberPractice()"
+                >
                     Stop Practice
                 </button>
+            
             </div>
+
+           
         </div>
 
         <div class="lesson-actions">

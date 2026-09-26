@@ -2574,15 +2574,19 @@ async function predictAlphabetLetter(
                 data.letter || "?"
             ).toUpperCase();
 
-        const confidence =
-            Number(
-                data.confidence || 0
-            );
-
+            const confidenceRaw =
+            Number(data.confidence || 0);
+        
         const percentage =
-            confidence <= 1
-                ? confidence * 100
-                : confidence;
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    confidenceRaw <= 1
+                        ? confidenceRaw * 100
+                        : confidenceRaw
+                )
+            );
 
 
         // ==========================================
@@ -4008,9 +4012,45 @@ function onNumberPracticeResults(
 // PREDICT NUMBER
 // ============================================================
 
+function normalizeNumberPrediction(prediction) {
+
+    const value =
+        String(prediction || "")
+            .trim()
+            .toUpperCase();
+
+    const numberMap = {
+
+        "ZERO": "0",
+        "ONE": "1",
+        "TWO": "2",
+        "THREE": "3",
+        "FOUR": "4",
+        "FIVE": "5",
+        "SIX": "6",
+        "SEVEN": "7",
+        "EIGHT": "8",
+        "NINE": "9",
+        "TEN": "10"
+
+    };
+
+    return numberMap[value] || value;
+}
+
 async function predictNumberSign(
     features
 ) {
+
+    const rawPrediction =
+        String(
+            data.sign || "—"
+        ).trim();
+
+    const prediction =
+        normalizeNumberPrediction(
+            rawPrediction
+        );
 
     if (numberPredictionBusy) {
         return;
@@ -4072,8 +4112,8 @@ async function predictNumberSign(
 
         const prediction =
             String(
-                data.sign
-            ).toUpperCase();
+                data.sign || "—"
+            ).trim().toUpperCase();
 
         const confidence =
             Number(
@@ -4185,6 +4225,56 @@ function updateNumberPracticeDisplay(
     confidence,
     message
 ) {
+
+    const predictionElement =
+        document.getElementById(
+            "numberPrediction"
+        );
+
+    const confidenceElement =
+        document.getElementById(
+            "numberConfidence"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "numberPracticeMessage"
+        );
+
+
+    if (predictionElement) {
+
+        predictionElement.innerText =
+            prediction || "—";
+
+    }
+
+
+    if (confidenceElement) {
+
+        const safeConfidence =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    Number(confidence) || 0
+                )
+            );
+
+        confidenceElement.innerText =
+            `${safeConfidence.toFixed(1)}%`;
+
+    }
+
+
+    if (messageElement) {
+
+        messageElement.innerText =
+            message || "";
+
+    }
+
+}
 
     const predictionElement =
         document.getElementById(
