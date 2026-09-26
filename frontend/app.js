@@ -3129,7 +3129,11 @@ function selectNumberLesson(index) {
     const number =
         lessonNumbers[index];
 
-        const referenceImage =
+    // ============================================================
+    // UPDATE NUMBER SIGN REFERENCE IMAGE
+    // ============================================================
+
+    const referenceImage =
         document.getElementById("numberReferenceImage");
     
     const referenceNumber =
@@ -4038,22 +4042,49 @@ function normalizeNumberPrediction(prediction) {
     return numberMap[value] || value;
 }
 
+// ============================================================
+// NORMALIZE NUMBER PREDICTION
+// ============================================================
+
+function normalizeNumberPrediction(prediction) {
+
+    const value =
+        String(prediction || "")
+            .trim()
+            .toUpperCase();
+
+    const numberMap = {
+
+        "ZERO": "0",
+        "ONE": "1",
+        "TWO": "2",
+        "THREE": "3",
+        "FOUR": "4",
+        "FIVE": "5",
+        "SIX": "6",
+        "SEVEN": "7",
+        "EIGHT": "8",
+        "NINE": "9",
+        "TEN": "10"
+
+    };
+
+    return numberMap[value] || value;
+}
+
+
+// ============================================================
+// PREDICT NUMBER
+// ============================================================
+
 async function predictNumberSign(
     features
 ) {
 
-    const rawPrediction =
-        String(
-            data.sign || "—"
-        ).trim();
-
-    const prediction =
-        normalizeNumberPrediction(
-            rawPrediction
-        );
-
     if (numberPredictionBusy) {
+
         return;
+
     }
 
     numberPredictionBusy =
@@ -4085,8 +4116,10 @@ async function predictNumberSign(
                 }
             );
 
+
         const data =
             await response.json();
+
 
         if (!response.ok) {
 
@@ -4094,7 +4127,9 @@ async function predictNumberSign(
                 data.message ||
                 "Prediction failed."
             );
+
         }
+
 
         if (
             data.status !==
@@ -4108,22 +4143,38 @@ async function predictNumberSign(
             );
 
             return;
+
         }
 
-        const prediction =
-            String(
-                data.sign || "—"
-            ).trim().toUpperCase();
 
-        const confidence =
+        // Some models return ONE/TWO/THREE
+        // while others return 1/2/3.
+
+        const prediction =
+            normalizeNumberPrediction(
+                data.sign
+            );
+
+
+        // Convert confidence to 0–100%.
+
+        const confidenceRaw =
             Number(
                 data.confidence || 0
             );
 
+
         const percentage =
-            confidence <= 1
-                ? confidence * 100
-                : confidence;
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    confidenceRaw <= 1
+                        ? confidenceRaw * 100
+                        : confidenceRaw
+                )
+            );
+
 
         updateNumberPracticeDisplay(
             prediction,
@@ -4131,14 +4182,25 @@ async function predictNumberSign(
             "AI is analyzing your sign..."
         );
 
-        if (
-            prediction ===
+
+        // Current target number
+
+        const target =
             String(
                 lessonNumbers[
                     selectedNumberIndex
                 ].value
-            )
+            );
+
+
+        // Check whether prediction matches
+        // selected number.
+
+        if (
+            prediction ===
+            target
         ) {
+
 
             if (
                 numberStablePrediction ===
@@ -4148,26 +4210,31 @@ async function predictNumberSign(
                 numberStableCount++;
 
             }
+
             else {
 
                 numberStablePrediction =
                     prediction;
 
-                numberStableCount = 1;
+                numberStableCount =
+                    1;
+
             }
+
 
             if (
                 numberStableCount >=
                 NUMBER_STABLE_REQUIRED
             ) {
 
+
                 learnedNumbers.add(
-                    lessonNumbers[
-                        selectedNumberIndex
-                    ].value
+                    target
                 );
 
+
                 updateNumbersProgress();
+
 
                 updateNumberPracticeDisplay(
                     prediction,
@@ -4175,31 +4242,42 @@ async function predictNumberSign(
                     "✓ Correct! Number learned! 🎉"
                 );
 
-                numberStableCount = 0;
+
+                numberStableCount =
+                    0;
+
             }
 
         }
+
+
         else {
 
             numberStablePrediction =
                 prediction;
 
-            numberStableCount = 0;
+            numberStableCount =
+                0;
+
 
             updateNumberPracticeDisplay(
                 prediction,
                 percentage,
-                `AI sees ${prediction}. Try number ${lessonNumbers[selectedNumberIndex].value}.`
+                `AI sees ${prediction}. Try number ${target}.`
             );
+
         }
 
     }
+
+
     catch (error) {
 
         console.error(
             "Number prediction error:",
             error
         );
+
 
         updateNumberPracticeDisplay(
             "—",
@@ -4208,13 +4286,21 @@ async function predictNumberSign(
         );
 
     }
+
+
     finally {
 
         numberPredictionBusy =
             false;
+
     }
+
 }
 
+
+// ============================================================
+// NUMBER PRACTICE DISPLAY
+// ============================================================
 
 // ============================================================
 // NUMBER PRACTICE DISPLAY
@@ -4231,10 +4317,12 @@ function updateNumberPracticeDisplay(
             "numberPrediction"
         );
 
+
     const confidenceElement =
         document.getElementById(
             "numberConfidence"
         );
+
 
     const messageElement =
         document.getElementById(
@@ -4260,6 +4348,7 @@ function updateNumberPracticeDisplay(
                     Number(confidence) || 0
                 )
             );
+
 
         confidenceElement.innerText =
             `${safeConfidence.toFixed(1)}%`;
@@ -4308,7 +4397,7 @@ function updateNumberPracticeDisplay(
         messageElement.innerText =
             message;
     }
-}
+
 
 
 // ============================================================
