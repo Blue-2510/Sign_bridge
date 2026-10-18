@@ -21,7 +21,7 @@ os.makedirs(
     exist_ok=True
 )
 
-NUMBERS = list("0123456789")
+NUMBERS = [str(i) for i in range(11)]
 
 
 # ============================================================
@@ -140,10 +140,10 @@ print("==============================================")
 print("   SIGNBRIDGE AI - NUMBER DATA COLLECTOR")
 print("==============================================")
 print()
-print("Numbers: 0 - 9")
+print("Numbers: 0 - 10")
 print()
 print("Controls:")
-print("0-9   -> Select number")
+print("0-10  -> Select number")
 print("SPACE -> Start/stop collecting")
 print("Q     -> Quit")
 print()
@@ -389,7 +389,7 @@ while True:
 
             print()
             print("==============================================")
-            print("ALL 0-9 NUMBERS COMPLETED!")
+            print("ALL 0-10 NUMBERS COMPLETED!")
             print("==============================================")
             print()
 

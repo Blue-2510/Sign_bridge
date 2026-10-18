@@ -39,6 +39,17 @@ ALPHABET_MODEL_PATH = os.path.abspath(
     )
 )
 
+# Webcam-trained number model (0–10)
+NUMBER_MODEL_PATH = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        "..",
+        "ml",
+        "models",
+        "number_model.pkl"
+    )
+)
+
 
 # ============================================================
 # LOAD EXISTING SIGN MODEL
@@ -82,6 +93,29 @@ try:
 except Exception as e:
 
     print("❌ Failed to load alphabet model:")
+    print(e)
+
+
+# ============================================================
+# LOAD NUMBER MODEL
+# ============================================================
+
+number_model = None
+number_feature_columns = None
+
+try:
+    number_model_data = joblib.load(NUMBER_MODEL_PATH)
+
+    # The training script saves a dictionary
+    number_model = number_model_data["model"]
+    number_feature_columns = number_model_data["feature_columns"]
+
+    print("✅ Webcam number model loaded")
+    print("Number model path:")
+    print(NUMBER_MODEL_PATH)
+
+except Exception as e:
+    print("❌ Failed to load number model:")
     print(e)
 
 
@@ -141,6 +175,26 @@ def alphabet_model_status():
         "model_loaded": False
     })
 
+
+# ============================================================
+# NUMBER MODEL STATUS
+# ============================================================
+
+@app.route("/number-model-status", methods=["GET"])
+def number_model_status():
+    if number_model is not None:
+        return jsonify({
+            "status": "success",
+            "message": "Number recognition model is ready",
+            "model_loaded": True,
+            "supported_numbers": list(range(11))
+        })
+
+    return jsonify({
+        "status": "error",
+        "message": "Number model is not loaded",
+        "model_loaded": False
+    }), 500
 
 # ============================================================
 # EXISTING SIGN PREDICTION
@@ -343,6 +397,83 @@ def predict_alphabet():
 
 
 # ============================================================
+# NUMBER PREDICTION (0–10)
+# ============================================================
+
+@app.route("/predict-number", methods=["POST"])
+def predict_number():
+    if number_model is None:
+        return jsonify({
+            "status": "error",
+            "message": "Number model is not loaded"
+        }), 500
+
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "status": "error",
+                "message": "No JSON data received"
+            }), 400
+
+        features = data.get("features")
+
+        if features is None or len(features) != 63:
+            return jsonify({
+                "status": "error",
+                "message": "Expected exactly 63 features"
+            }), 400
+
+        features_array = np.asarray(
+            features,
+            dtype=float
+        ).reshape(1, -1)
+
+        if not np.isfinite(features_array).all():
+            return jsonify({
+                "status": "error",
+                "message": "Features must be finite numbers"
+            }), 400
+
+        # Preserve the feature order used during training.
+        import pandas as pd
+
+        features_df = pd.DataFrame(
+            features_array,
+            columns=number_feature_columns
+        )
+
+        probabilities = number_model.predict_proba(
+            features_df
+        )[0]
+
+        best_index = int(np.argmax(probabilities))
+        predicted_number = int(number_model.classes_[best_index])
+        confidence = float(probabilities[best_index])
+
+        print(
+            f"Number prediction: {predicted_number} | "
+            f"Confidence: {confidence:.3f}"
+        )
+
+        return jsonify({
+            "status": "success",
+            "number": predicted_number,
+            "confidence": confidence
+        })
+
+    except Exception as e:
+        print("❌ Number prediction error:")
+        print(e)
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+# ============================================================
 # START SERVER
 # ============================================================
 
@@ -360,10 +491,16 @@ if __name__ == "__main__":
     print("GET  /alphabet-model-status")
     print("POST /predict")
     print("POST /predict-alphabet")
+
+    print("GET  /number-model-status")
+    print("POST /predict-number")
     print()
+
+    
 
     app.run(
         host="127.0.0.1",
         port=5000,
         debug=True
     )
+

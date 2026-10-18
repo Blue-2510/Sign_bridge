@@ -1276,85 +1276,160 @@ function clearTranslation() {
 }
 
 // ============================================================
-// SPEAK TRANSLATION
+// SIGN -> SPEECH
 // ============================================================
 
 function speakTranslation() {
-
-    const text =
-        sentence
-            .join(" ")
-            .trim();
+    const output = document.getElementById("translatedText");
+    const displayedText = output ? output.innerText.trim() : "";
+    const text = (displayedText && displayedText !== "Start signing..." && displayedText !== "No sign selected")
+        ? displayedText
+        : sentence.join(" ").trim();
 
     if (!text) {
-
-        alert(
-            "Please translate a sign first."
-        );
-
+        alert("Please translate a sign first, then press Speak.");
         return;
     }
-
-    if (
-        !("speechSynthesis" in window)
-    ) {
-
-        alert(
-            "Text-to-speech is not supported by your browser."
-        );
-
+    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+        alert("Text-to-speech is not supported in this browser. Try the latest Chrome or Edge.");
         return;
     }
-
-    // Stop previous speech
 
     window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text.replace(/_/g, " "));
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.onerror = (event) => console.error("Sign-to-speech error:", event.error || event);
+    window.speechSynthesis.speak(utterance);
+}
 
-    const speech =
-        new SpeechSynthesisUtterance(
-            text
-        );
+// ============================================================
+// TEXT / SPEECH -> SIGN PREVIEW
+// This prototype supports only the sign GIFs included in assets/signs.
+// ============================================================
 
-    speech.lang =
-        "en-US";
+const SIGN_PREVIEW_ASSETS = {
+    "hello": { file: "hello.gif", label: "HELLO", description: "Hello sign" },
+    "yes": { file: "yes.gif", label: "YES", description: "Yes sign" },
+    "no": { file: "no.gif", label: "NO", description: "No sign" },
+    "help": { file: "help.gif", label: "HELP", description: "Help sign" },
+    "thank you": { file: "thankyou.gif", label: "THANK YOU", description: "Thank you sign" },
+    "thank_you": { file: "thankyou.gif", label: "THANK YOU", description: "Thank you sign" }
+};
+let signPreviewTimer = null;
 
-    speech.rate =
-        0.9;
+function renderTextAsSigns(rawText) {
+    const input = document.getElementById("textToSignInput");
+    const preview = document.getElementById("signPreview");
+    const title = document.getElementById("signPreviewTitle");
+    const description = document.getElementById("signPreviewDescription");
+    const currentWord = document.getElementById("currentSignWord");
+    const text = String(rawText || (input ? input.value : "")).trim();
 
-    speech.pitch =
-        1;
+    if (!preview || !title || !description || !currentWord) return;
+    if (signPreviewTimer) { clearInterval(signPreviewTimer); signPreviewTimer = null; }
+    if (!text) {
+        preview.innerHTML = '<div class="sign-placeholder"><span>🤟</span><p>Enter text to see the sign</p></div>';
+        title.textContent = "Sign Preview";
+        description.textContent = "Your sign animation will appear here.";
+        currentWord.textContent = "No sign selected";
+        return;
+    }
 
-    speech.volume =
-        1;
+    const normalized = text.toLowerCase().replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
+    // Match supported phrases first, then individual words.
+    const tokens = [];
+    let remaining = normalized;
+    while (remaining.length) {
+        remaining = remaining.trim();
+        if (!remaining) break;
+        if (remaining.startsWith("thank you")) {
+            tokens.push("thank you");
+            remaining = remaining.slice("thank you".length);
+            continue;
+        }
+        const nextSpace = remaining.indexOf(" ");
+        const token = nextSpace === -1 ? remaining : remaining.slice(0, nextSpace);
+        tokens.push(token);
+        remaining = nextSpace === -1 ? "" : remaining.slice(nextSpace + 1);
+    }
 
-    speech.onstart =
-        function () {
+    const supported = tokens.filter(token => SIGN_PREVIEW_ASSETS[token]);
+    const unsupported = tokens.filter(token => !SIGN_PREVIEW_ASSETS[token]);
+    if (!supported.length) {
+        preview.innerHTML = '<div class="sign-placeholder"><span>ℹ️</span><p>No matching sign animation found.</p></div>';
+        title.textContent = "Sign Not Available";
+        description.textContent = "Available signs: HELLO, YES, NO, HELP and THANK YOU.";
+        currentWord.textContent = "Unsupported text";
+        return;
+    }
 
-            console.log(
-                "🔊 Speech started."
-            );
+    let index = 0;
+    const showNext = () => {
+        const key = supported[index];
+        const item = SIGN_PREVIEW_ASSETS[key];
+        preview.replaceChildren();
+        const image = document.createElement("img");
+        image.src = `assets/signs/${item.file}`;
+        image.alt = `${item.label} sign animation`;
+        image.className = "word-sign-image";
+        image.onerror = () => {
+            preview.innerHTML = '<div class="sign-placeholder"><span>⚠️</span><p>Sign animation could not be loaded.</p></div>';
         };
+        preview.appendChild(image);
+        title.textContent = item.label;
+        description.textContent = item.description;
+        currentWord.textContent = `${index + 1} / ${supported.length}: ${item.label}`;
+        index = (index + 1) % supported.length;
+    };
+    showNext();
+    if (supported.length > 1) signPreviewTimer = setInterval(showNext, 1800);
+    if (unsupported.length) description.textContent += ` Unsupported words skipped: ${unsupported.join(", ")}.`;
+}
 
-    speech.onend =
-        function () {
+function startSpeechToSign() {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const status = document.getElementById("speechToSignStatus");
+    if (!SpeechRecognitionAPI) {
+        if (status) status.textContent = "Speech recognition is not supported here. Use the latest Chrome or Edge, and allow microphone access.";
+        alert("Speech recognition is not supported by this browser. Please use Chrome or Edge.");
+        return;
+    }
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    if (status) status.textContent = "Listening… please speak now.";
+    const button = document.getElementById("speechToSignBtn");
+    if (button) button.disabled = true;
+    recognition.onresult = (event) => {
+        const transcript = Array.from(event.results).map(result => result[0].transcript).join(" ").trim();
+        const input = document.getElementById("textToSignInput");
+        if (input) input.value = transcript;
+        renderTextAsSigns(transcript);
+        if (status) status.textContent = transcript ? `Recognized: “${transcript}”` : "No speech detected. Try again.";
+    };
+    recognition.onerror = (event) => {
+        if (status) status.textContent = `Microphone error: ${event.error}. Check microphone permission and try again.`;
+        console.error("Speech-to-sign recognition error:", event.error);
+    };
+    recognition.onend = () => { if (button) button.disabled = false; };
+    try { recognition.start(); }
+    catch (error) {
+        if (button) button.disabled = false;
+        if (status) status.textContent = "Could not start microphone. Check permissions and try again.";
+        console.error("Could not start speech recognition:", error);
+    }
+}
 
-            console.log(
-                "🔊 Speech finished."
-            );
-        };
-
-    speech.onerror =
-        function (error) {
-
-            console.error(
-                "Speech error:",
-                error
-            );
-        };
-
-    window.speechSynthesis.speak(
-        speech
-    );
+function clearTextToSign() {
+    const input = document.getElementById("textToSignInput");
+    if (input) input.value = "";
+    renderTextAsSigns("");
+    const status = document.getElementById("speechToSignStatus");
+    if (status) status.textContent = "Press the microphone button and speak, or type a supported phrase.";
 }
 
 // ============================================================
@@ -4095,7 +4170,7 @@ async function predictNumberSign(
 
         const response =
             await fetch(
-                `${API_URL}/predict`,
+                `${API_URL}/predict-number`,
                 {
 
                     method: "POST",
@@ -4153,7 +4228,7 @@ async function predictNumberSign(
 
         const prediction =
             normalizeNumberPrediction(
-                data.sign
+                data.number
             );
 
 
@@ -5106,6 +5181,24 @@ function showNumberAIMessage() {
 // ============================================================
 
 function connectButtons() {
+
+    const textToSignButton = document.getElementById("textToSignBtn");
+    if (textToSignButton) textToSignButton.onclick = () => renderTextAsSigns();
+
+    const clearTextSignButton = document.getElementById("clearTextSignBtn");
+    if (clearTextSignButton) clearTextSignButton.onclick = clearTextToSign;
+
+    document.querySelectorAll(".quick-sign-button[data-sign]").forEach((button) => {
+        button.onclick = () => {
+            const input = document.getElementById("textToSignInput");
+            const key = button.dataset.sign === "thank_you" ? "thank you" : button.dataset.sign;
+            if (input) input.value = key;
+            renderTextAsSigns(key);
+        };
+    });
+
+    const speechToSignButton = document.getElementById("speechToSignBtn");
+    if (speechToSignButton) speechToSignButton.onclick = startSpeechToSign;
 
 
         // ============================================================
