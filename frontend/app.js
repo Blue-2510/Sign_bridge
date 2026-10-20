@@ -3308,27 +3308,32 @@ function selectNumberLesson(index) {
 function updateNumbersGrid() {
 
     document
-        .querySelectorAll(
-            ".number-item"
-        )
-        .forEach(
-            function (button, index) {
+        .querySelectorAll(".number-item")
+        .forEach(function (button, index) {
 
-                button.classList.toggle(
-                    "selected",
-                    index === selectedNumberIndex
-                );
+            const number = lessonNumbers[index];
 
-                button.classList.toggle(
-                    "learned",
-                    learnedNumbers.has(
-                        lessonNumbers[index].value
-                    )
+            // Prevent errors if a grid item has no matching number
+            if (!number) {
+                console.warn(
+                    "No matching lesson number for grid item:",
+                    index
                 );
+                button.classList.remove("selected", "learned");
+                return;
             }
-        );
-}
 
+            button.classList.toggle(
+                "selected",
+                index === selectedNumberIndex
+            );
+
+            button.classList.toggle(
+                "learned",
+                learnedNumbers.has(number.value)
+            );
+        });
+}
 
 // ============================================================
 // PREVIOUS NUMBER
