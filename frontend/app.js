@@ -2062,11 +2062,14 @@ function createAlphabetGrid() {
 
             button.type = "button";
 
-            button.className =
-                "alphabet-letter";
+            
+            button.className = "number-item alphabet-letter";
 
-            button.innerText =
-                letter;
+            button.innerHTML = `
+                <span class="number-item-value">${letter}</span>
+                <span class="number-item-label">Letter ${letter}</span>
+`;
+
 
             button.onclick =
                 function () {
@@ -2089,277 +2092,240 @@ function createAlphabetGrid() {
 // SELECT LETTER
 // ============================================================
 
+// ============================================================
+// SELECT LETTER
+// ============================================================
+
 function selectAlphabetLetter(letter) {
+    selectedAlphabetLetter = String(letter).toUpperCase();
 
-    selectedAlphabetLetter =
-        String(letter).toUpperCase();
-        updateAlphabetReference(letter);
+    // Update the reference image and letter labels
+    updateAlphabetReference(selectedAlphabetLetter);
 
-    const selectedLetter =
-        document.getElementById(
-            "selectedAlphabet"
-        );
+    const selectedLetter = document.getElementById("selectedAlphabet");
+    const title = document.getElementById("selectedAlphabetTitle");
+    const description = document.getElementById("selectedAlphabetDescription");
+    const practiceTitle = document.getElementById("practiceLetterTitle");
+    const referenceLetter = document.getElementById("referenceLetter");
+    const counter = document.getElementById("alphabetLessonCounter");
+    const previous = document.getElementById("previousAlphabetBtn");
+    const next = document.getElementById("nextAlphabetBtn");
 
-    const title =
-        document.getElementById(
-            "selectedAlphabetTitle"
-        );
-
-    const description =
-        document.getElementById(
-            "selectedAlphabetDescription"
-        );
-
-    if (selectedLetter) {
-
-        selectedLetter.innerText =
-            selectedAlphabetLetter;
-
-    }
-
-    if (title) {
-
-        title.innerText =
-            "Letter " +
-            selectedAlphabetLetter;
-
-    }
+    if (selectedLetter) selectedLetter.textContent = selectedAlphabetLetter;
+    if (title) title.textContent = "Letter " + selectedAlphabetLetter;
+    if (practiceTitle) practiceTitle.textContent = selectedAlphabetLetter;
+    if (referenceLetter) referenceLetter.textContent = selectedAlphabetLetter;
 
     if (description) {
-
-        description.innerText =
-            "Learn the hand sign for the letter " +
+        description.textContent =
+            "Learn the hand sign for letter " +
             selectedAlphabetLetter +
             " and practice it using your camera.";
-
     }
 
-    document
-        .querySelectorAll(
-            ".alphabet-letter"
-        )
-        .forEach(
-            function (button) {
+    const index = alphabetLetters.indexOf(selectedAlphabetLetter);
 
-                button.classList.remove(
-                    "selected"
-                );
+    if (counter) {
+        counter.textContent = `${index + 1} / ${alphabetLetters.length}`;
+    }
 
-                if (
-                    button.innerText ===
-                    selectedAlphabetLetter
-                ) {
+    if (previous) previous.disabled = index <= 0;
 
-                    button.classList.add(
-                        "selected"
-                    );
+    if (next) {
+        next.textContent = index === alphabetLetters.length - 1
+            ? "Finish →"
+            : "Next →";
+    }
 
-                }
+    // Highlight the selected alphabet card
+    document.querySelectorAll("#alphabetGrid .alphabet-letter")
+        .forEach(function (button) {
+            const letterText = button.querySelector(".number-item-value");
 
-            }
-        );
+            button.classList.toggle(
+                "selected",
+                (letterText
+                    ? letterText.textContent
+                    : button.textContent).trim().toUpperCase()
+                    === selectedAlphabetLetter
+            );
+        });
 
+    // Reset the practice camera when switching letters
     stopAlphabetPractice();
-
 }
 
+
+// ============================================================
+// PREVIOUS LETTER
+// ============================================================
+
+function previousAlphabetLesson() {
+    const index = alphabetLetters.indexOf(selectedAlphabetLetter);
+
+    if (index > 0) {
+        selectAlphabetLetter(alphabetLetters[index - 1]);
+    }
+}
+
+
+// ============================================================
+// NEXT LETTER
+// ============================================================
+
+function nextAlphabetLesson() {
+    const index = alphabetLetters.indexOf(selectedAlphabetLetter);
+
+    if (index < alphabetLetters.length - 1) {
+        selectAlphabetLetter(alphabetLetters[index + 1]);
+    }
+}
 
 // ============================================================
 // START ALPHABET PRACTICE
 // ============================================================
 
+// ============================================================
+// START ALPHABET PRACTICE CAMERA
+// ============================================================
+
 async function startAlphabetPractice() {
-
-    const area =
-        document.getElementById("alphabetPracticeArea");
-
-    const video =
-        document.getElementById("alphabetPracticeVideo");
-
-    const message =
-        document.getElementById("alphabetPracticeMessage");
-
-    const cameraStatus =
-        document.getElementById("alphabetCameraStatus");
+    const area = document.getElementById("alphabetPracticeArea");
+    const video = document.getElementById("alphabetPracticeVideo");
+    const message = document.getElementById("alphabetPracticeMessage");
+    const cameraStatus = document.getElementById("alphabetCameraStatus");
+    const predicted = document.getElementById("alphabetPredictedLetter");
+    const confidence = document.getElementById("alphabetPracticeConfidence");
 
     if (!area || !video) {
-
-        console.error(
-            "Alphabet practice elements not found."
-        );
-
+        console.error("Alphabet practice HTML elements are missing.");
         return;
     }
 
+    // Prevent a confusing error if the MediaPipe library did not load
+    if (typeof Hands === "undefined") {
+        if (cameraStatus) cameraStatus.textContent = "MediaPipe failed to load";
+        if (message) {
+            message.textContent =
+                "Hand-tracking library unavailable. Check your internet connection and reload the page.";
+        }
+        console.error("MediaPipe Hands is not loaded.");
+        return;
+    }
 
-    console.log(
-        `🎥 Starting practice for letter: ${selectedAlphabetLetter}`
-    );
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (cameraStatus) cameraStatus.textContent = "Camera unavailable";
+        if (message) {
+            message.textContent =
+                "Camera access requires localhost or a secure HTTPS page. Open the app using VS Code Live Server.";
+        }
+        return;
+    }
 
+    // Avoid starting a second camera stream
+    if (alphabetPracticeRunning && alphabetPracticeStream) {
+        area.classList.add("active");
+        return;
+    }
 
-    // Show practice area
     area.classList.add("active");
 
+    if (predicted) predicted.textContent = "—";
+    if (confidence) confidence.textContent = "0%";
 
-    // Reset prediction
-    alphabetStableLetter = null;
-    alphabetStableCount = 0;
-    alphabetPredictionBusy = false;
-
-
-    const predicted =
-        document.getElementById("alphabetPredictedLetter");
-
-    const confidence =
-        document.getElementById("alphabetPracticeConfidence");
-
-    if (predicted) {
-        predicted.textContent = "—";
-    }
-
-    if (confidence) {
-        confidence.textContent = "0%";
-    }
-
-
+    if (cameraStatus) cameraStatus.textContent = "Requesting camera access...";
     if (message) {
-
         message.textContent =
-            `Show the sign for ${selectedAlphabetLetter} to the camera.`;
-
+            `Allow camera access, then make the sign for ${selectedAlphabetLetter}.`;
     }
-
-
-    if (cameraStatus) {
-
-        cameraStatus.textContent =
-            "Starting camera...";
-
-    }
-
 
     try {
-
-        // Stop old stream if any
+        // Stop any previous stream
         if (alphabetPracticeStream) {
-
-            alphabetPracticeStream
-                .getTracks()
-                .forEach(track => track.stop());
-
+            alphabetPracticeStream.getTracks().forEach(track => track.stop());
+            alphabetPracticeStream = null;
         }
-
-
-        // Get webcam
-        alphabetPracticeStream =
-            await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: {
-                        ideal: 640
-                    },
-                    height: {
-                        ideal: 480
-                    },
-                    facingMode: "user"
-                },
-                audio: false
-            });
-
-
-        video.srcObject =
-            alphabetPracticeStream;
-
-
-        await video.play();
-
-
-        alphabetPracticeRunning = true;
-
-
-        if (cameraStatus) {
-
-            cameraStatus.textContent =
-                "🟢 Camera active";
-
-        }
-
-
-        if (message) {
-
-            message.textContent =
-                `Make the ${selectedAlphabetLetter} sign`;
-
-        }
-
-
-        // Initialize MediaPipe if required
-        if (!alphabetPracticeHands) {
-
-            alphabetPracticeHands =
-                new Hands({
-                    locateFile: function (file) {
-
-                        return (
-                            "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" +
-                            file
-                        );
-
-                    }
-                });
-
-
-            alphabetPracticeHands.setOptions({
-
-                maxNumHands: 1,
-
-                modelComplexity: 1,
-
-                minDetectionConfidence: 0.5,
-
-                minTrackingConfidence: 0.5
-
-            });
-
-
-            alphabetPracticeHands.onResults(
-                onAlphabetPracticeResults
-            );
-
-        }
-
-
-        // Start processing
-        processAlphabetPracticeFrame();
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ Alphabet practice camera error:",
-            error
-        );
-
 
         alphabetPracticeRunning = false;
 
+        // Request webcam permission
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "user"
+            },
+            audio: false
+        });
 
-        if (cameraStatus) {
+        alphabetPracticeStream = stream;
+        video.srcObject = stream;
+        video.muted = true;
+        video.playsInline = true;
 
-            cameraStatus.textContent =
-                "❌ Camera could not be started";
+        await video.play();
 
+        // Initialize MediaPipe
+        if (!alphabetPracticeHands) {
+            alphabetPracticeHands = new Hands({
+                locateFile: file =>
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
+            });
+
+            alphabetPracticeHands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            alphabetPracticeHands.onResults(onAlphabetPracticeResults);
         }
 
+        alphabetStableLetter = null;
+        alphabetStableCount = 0;
+        alphabetPredictionBusy = false;
+        alphabetLastPredictionTime = 0;
+
+        alphabetPracticeRunning = true;
+
+        if (cameraStatus) cameraStatus.textContent = "🟢 Camera active";
+        if (message) {
+            message.textContent =
+                `Camera started. Make the sign for letter ${selectedAlphabetLetter}.`;
+        }
+
+        // Begin frame processing
+        processAlphabetPracticeFrame();
+
+    } catch (error) {
+        console.error("Alphabet practice camera error:", error);
+
+        alphabetPracticeRunning = false;
+
+        if (alphabetPracticeStream) {
+            alphabetPracticeStream.getTracks().forEach(track => track.stop());
+            alphabetPracticeStream = null;
+        }
+
+        video.srcObject = null;
+
+        if (cameraStatus) cameraStatus.textContent = "❌ Camera could not start";
 
         if (message) {
-
-            message.textContent =
-                "Please allow camera access and try again.";
-
+            if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+                message.textContent =
+                    "Camera permission denied. Allow camera access in your browser settings.";
+            } else if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
+                message.textContent = "No webcam was found on this device.";
+            } else if (error.name === "NotReadableError") {
+                message.textContent =
+                    "The webcam may be in use by another app. Close other camera apps and try again.";
+            } else {
+                message.textContent = "Camera error: " + error.message;
+            }
         }
-
     }
-
 }
 
 
@@ -5220,57 +5186,64 @@ function connectButtons() {
         // ALPHABET PRACTICE BUTTONS
         // ============================================================
 
-        const practiceAlphabetButton =
+        
+    // ============================================================
+    // ALPHABET PRACTICE BUTTONS
+    // ============================================================
+
+    const practiceAlphabetButton =
         document.getElementById("practiceAlphabetBtn");
-
-        if (practiceAlphabetButton) {
-
-        // Remove old inline onclick if it exists
-        practiceAlphabetButton.removeAttribute("onclick");
-
-        practiceAlphabetButton.onclick =
-        async function (event) {
-
-        event.preventDefault();
-
-        console.log(
-            "🎥 Practice This Letter clicked"
-        );
-
-        await startAlphabetPractice();
-
+    if (practiceAlphabetButton) {
+        practiceAlphabetButton.onclick = async function (event) {
+            event.preventDefault();
+            await startAlphabetPractice();
         };
-        }
+    }    
 
-
-        const startAlphabetCameraBtn =
+    const startAlphabetCameraBtn =
         document.getElementById("startAlphabetCameraBtn");
 
-        if (startAlphabetCameraBtn) {
-
-        startAlphabetCameraBtn.onclick =
-        async function () {
-
-        await startAlphabetPractice();
-
-        };
-
-        }
-
-
-        const stopAlphabetCameraBtn =
+    const stopAlphabetCameraBtn =
         document.getElementById("stopAlphabetCameraBtn");
 
-        if (stopAlphabetCameraBtn) {
+    if (practiceAlphabetButton) {
+        practiceAlphabetButton.onclick = async function (event) {
+            event.preventDefault();
 
-        stopAlphabetCameraBtn.onclick =
-        function () {
+            console.log("Practice This Letter clicked");
 
-        stopAlphabetPractice();
+            const area =
+                document.getElementById("alphabetPracticeArea");
 
+            if (!area) {
+                console.error("alphabetPracticeArea not found");
+                return;
+            }
+
+            // Reveal the practice interface
+            area.classList.add("active");
+
+            // Start webcam and hand tracking
+            await startAlphabetPractice();
         };
+    } else {
+        console.error("practiceAlphabetBtn not found");
+    }
 
-        }
+    if (startAlphabetCameraBtn) {
+        startAlphabetCameraBtn.onclick = async function (event) {
+            event.preventDefault();
+            await startAlphabetPractice();
+        };
+    }
+
+    if (stopAlphabetCameraBtn) {
+        stopAlphabetCameraBtn.onclick = function (event) {
+            event.preventDefault();
+            stopAlphabetPractice();
+        };
+    }
+
 
  
     // Start camera
@@ -5574,4 +5547,50 @@ function updateAlphabetReference(letter) {
         );
 
     };
+}
+
+
+// ============================================================
+// LIGHT / DARK THEME TOGGLE
+// ============================================================
+
+function initializeThemeToggle() {
+    const themeButton = document.getElementById("themeToggle");
+
+    if (!themeButton) {
+        console.warn("Theme toggle button not found.");
+        return;
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+
+        const isDark = theme === "dark";
+
+        themeButton.textContent = isDark ? "☀️ Light mode" : "🌙 Dark mode";
+        themeButton.setAttribute(
+            "aria-label",
+            isDark ? "Switch to light theme" : "Switch to dark theme"
+        );
+    }
+
+    // Start with dark mode
+    const savedTheme = localStorage.getItem("signBridgeTheme") || "dark";
+    applyTheme(savedTheme);
+
+    themeButton.addEventListener("click", function () {
+        const currentTheme =
+            document.documentElement.getAttribute("data-theme") || "dark";
+
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        localStorage.setItem("signBridgeTheme", newTheme);
+        applyTheme(newTheme);
+    });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeThemeToggle);
+} else {
+    initializeThemeToggle();
 }
