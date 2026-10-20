@@ -11,9 +11,9 @@
 
 const API_URL = "http://127.0.0.1:5000";
 
-const STABLE_FRAMES = 12;
-const MIN_CONFIDENCE = 0.90;
-const COOLDOWN = 1.2;
+const STABLE_FRAMES = 6;
+const MIN_CONFIDENCE = 0.75;
+const COOLDOWN = 0.8;
 
 const PREDICTION_INTERVAL = 150;
 
@@ -1095,6 +1095,16 @@ function processStableSign(
     sign,
     confidence
 ) {
+
+    // Ignore unknown or empty predictions
+    if (
+        !sign ||
+        String(sign).trim().toLowerCase() === "unknown"
+    ) {
+        stableCount = 0;
+        lastSign = null;
+        return;
+    }
 
     // Ignore low confidence
 
@@ -2849,8 +2859,13 @@ function updateAlphabetPracticeDisplay(
 
     if (confidenceElement) {
 
+            const safeConfidence = Math.max(
+            0,
+            Math.min(100, Number(confidence) || 0)
+        );
+
         confidenceElement.textContent =
-            `${Math.round(confidence * 100)}%`;
+            `${safeConfidence.toFixed(1)}%`;
 
     }
 
