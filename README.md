@@ -63,7 +63,7 @@ Open PowerShell in the project folder and run:
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install Flask Flask-Cors mediapipe opencv-python numpy scikit-learn joblib pyttsx3
+python -m pip install Flask Flask-Cors mediapipe opencv-python numpy scikit-learn joblib pyttsx3 pandas
 ```
 
 **Important:** This is a proposed dependency list based on the project's described features. Confirm that every package is compatible with your Python version and that the list covers all imports in your current code. Flask-CORS and pyttsx3 are only needed if the project uses them.
@@ -91,6 +91,7 @@ py -3.12 -m venv .venv
 ```powershell
 python -m pip install --upgrade pip
 python -m pip install Flask Flask-Cors mediapipe opencv-python numpy scikit-learn joblib pyttsx3
+python -m pip install pandas
 ```
 
 ### Step 4: Install frontend dependencies
