@@ -1536,6 +1536,98 @@ html[data-theme="light"] .number-camera-card {
 
 
 <!-- =========================================================
+     SIGNBRIDGE AI INTERACTIVE QUIZ
+========================================================= -->
+
+<section id="signQuiz" class="sb-quiz">
+
+    <div class="sb-quiz-header">
+        <div>
+            <span class="sb-quiz-tag">INTERACTIVE LEARNING</span>
+            <h2>Sign Language Quiz</h2>
+            <p>Identify the sign and test your knowledge!</p>
+        </div>
+
+        <div class="sb-quiz-score">
+            <span>Best Score</span>
+            <strong id="sbBestScore">0 / 50</strong>
+        </div>
+    </div>
+
+    <div class="sb-quiz-progress">
+        <div id="sbProgressFill" class="sb-quiz-progress-fill"></div>
+    </div>
+
+    <p id="sbProgressText" class="sb-quiz-progress-text">
+        Ready to begin!
+    </p>
+
+    <!-- Start screen -->
+    <div id="sbQuizStart" class="sb-quiz-panel">
+        <div class="sb-quiz-icon">🤟</div>
+        <h3>Ready to take the challenge?</h3>
+        <p>Answer five questions about common sign language gestures.</p>
+
+        <button type="button" id="sbStartQuiz" class="sb-quiz-btn">
+            Start Quiz →
+        </button>
+    </div>
+
+    <!-- Question screen -->
+    <div id="sbQuizGame" class="sb-quiz-panel" hidden>
+        <div id="sbQuestionNumber" class="sb-question-number">
+            QUESTION 1
+        </div>
+
+        <h3 id="sbQuestion">What does this sign mean?</h3>
+
+        <div class="sb-sign-image-wrap">
+            <img
+                id="sbSignImage"
+                src="assets/signs/hello.jpg"
+                alt="Sign language gesture"
+            >
+        </div>
+
+        <div id="sbQuizOptions" class="sb-quiz-options"></div>
+
+        <p id="sbQuizFeedback" class="sb-quiz-feedback"
+           aria-live="polite"></p>
+
+        <button type="button" id="sbHintBtn"
+                class="sb-quiz-secondary">
+            💡 Show Hint
+        </button>
+
+        <p id="sbQuizHint" class="sb-quiz-hint" hidden></p>
+
+        <button type="button" id="sbNextBtn"
+                class="sb-quiz-btn" disabled>
+            Next Question →
+        </button>
+    </div>
+
+    <!-- Results screen -->
+    <div id="sbQuizResult" class="sb-quiz-panel" hidden>
+        <div class="sb-quiz-icon">🏆</div>
+        <h3 id="sbResultTitle">Quiz Complete!</h3>
+        <p id="sbResultMessage"></p>
+
+        <div id="sbFinalScore" class="sb-final-score">0 / 50</div>
+
+        <button type="button" id="sbRestartQuiz"
+                class="sb-quiz-btn">
+            Try Again ↻
+        </button>
+    </div>
+
+</section>
+
+<!-- END SIGNBRIDGE AI INTERACTIVE QUIZ -->
+
+
+
+<!-- =========================================================
      ALPHABET LESSON MODAL
 ========================================================= -->
 
@@ -2025,6 +2117,8 @@ html[data-theme="light"] .number-camera-card {
         </div>
     </div>
 </div>
+
+
 
 <!-- =========================================================
      CONVERSATION

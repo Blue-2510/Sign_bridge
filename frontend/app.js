@@ -5599,3 +5599,278 @@ if (document.readyState === "loading") {
 } else {
     initializeThemeToggle();
 }
+
+
+/* ===== SignBridge AI Interactive Quiz ===== */
+
+(() => {
+    const get = (id) => document.getElementById(id);
+
+    const quiz = {
+        start: get("sbQuizStart"),
+        game: get("sbQuizGame"),
+        result: get("sbQuizResult"),
+        best: get("sbBestScore"),
+        progress: get("sbProgressFill"),
+        progressText: get("sbProgressText"),
+        questionNumber: get("sbQuestionNumber"),
+        question: get("sbQuestion"),
+        image: get("sbSignImage"),
+        options: get("sbQuizOptions"),
+        feedback: get("sbQuizFeedback"),
+        hint: get("sbQuizHint"),
+        hintButton: get("sbHintBtn"),
+        next: get("sbNextBtn"),
+        resultTitle: get("sbResultTitle"),
+        resultMessage: get("sbResultMessage"),
+        finalScore: get("sbFinalScore")
+    };
+
+    const signs = [
+        {
+            word: "Hello",
+            image: "assets/signs/hello.jpg",
+            hint: "Think of a gesture used to greet someone.",
+            question: "What does this sign mean?"
+        },
+        {
+            word: "Yes",
+            image: "assets/signs/yes.jpg",
+            hint: "This word expresses agreement.",
+            question: "Which word matches this sign?"
+        },
+        {
+            word: "No",
+            image: "assets/signs/no.jpg",
+            hint: "This word expresses a negative response.",
+            question: "Identify the meaning of this sign."
+        },
+        {
+            word: "Help",
+            image: "assets/signs/help.jpg",
+            hint: "This word is used when assistance is needed.",
+            question: "What does this sign represent?"
+        },
+        {
+            word: "Thank You",
+            image: "assets/signs/thank_you.jpg",
+            hint: "This phrase expresses gratitude.",
+            question: "Which phrase matches this sign?"
+        }
+    ];
+
+    const storageKey = "signbridgeQuizProgressV1";
+
+    let questions = [];
+    let current = 0;
+    let score = 0;
+    let answered = false;
+    let bestScore = 0;
+
+    try {
+        bestScore = Number(localStorage.getItem(storageKey)) || 0;
+    } catch (error) {
+        bestScore = 0;
+    }
+
+    // Prevent errors on pages where the quiz is not present.
+    if (!quiz.start || !quiz.game || !quiz.result) return;
+
+    function shuffle(items) {
+        const copy = [...items];
+
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+
+        return copy;
+    }
+
+    function updateBest() {
+        quiz.best.textContent = `${bestScore} / 50`;
+    }
+
+    function startQuiz() {
+        questions = shuffle(signs).slice(0, 5);
+        current = 0;
+        score = 0;
+        answered = false;
+
+        quiz.start.hidden = true;
+        quiz.result.hidden = true;
+        quiz.game.hidden = false;
+
+        updateBest();
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const item = questions[current];
+
+        answered = false;
+
+        quiz.questionNumber.textContent = `QUESTION ${current + 1}`;
+        quiz.question.textContent = item.question;
+        quiz.image.src = item.image;
+        quiz.image.alt = `Sign representing ${item.word}`;
+
+        quiz.image.onerror = () => {
+            quiz.image.onerror = null;
+            quiz.image.alt = `Image unavailable for ${item.word}`;
+            quiz.image.removeAttribute("src");
+            quiz.image.style.display = "none";
+
+            const wrapper = quiz.image.parentElement;
+            let fallback = wrapper.querySelector(".sb-image-fallback");
+
+            if (!fallback) {
+                fallback = document.createElement("p");
+                fallback.className = "sb-image-fallback";
+                fallback.textContent = "🤟 Sign image unavailable";
+                wrapper.appendChild(fallback);
+            }
+
+            fallback.hidden = false;
+        };
+
+        const oldFallback =
+            quiz.image.parentElement.querySelector(".sb-image-fallback");
+
+        if (oldFallback) oldFallback.hidden = true;
+        quiz.image.style.display = "block";
+
+        quiz.feedback.textContent = "";
+        quiz.hint.textContent = "";
+        quiz.hint.hidden = true;
+        quiz.hintButton.disabled = false;
+        quiz.next.disabled = true;
+
+        quiz.next.textContent =
+            current === questions.length - 1
+                ? "See Results →"
+                : "Next Question →";
+
+        quiz.progress.style.width =
+            `${(current / questions.length) * 100}%`;
+
+        quiz.progressText.textContent =
+            `Question ${current + 1} of ${questions.length}`;
+
+        const wrongAnswers = shuffle(
+            signs.filter((sign) => sign.word !== item.word)
+        ).slice(0, 3).map((sign) => sign.word);
+
+        const choices = shuffle([item.word, ...wrongAnswers]);
+
+        quiz.options.replaceChildren();
+
+        choices.forEach((choice) => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "sb-quiz-option";
+            button.textContent = choice;
+
+            button.addEventListener("click", () => {
+                chooseAnswer(button, choice);
+            });
+
+            quiz.options.appendChild(button);
+        });
+    }
+
+    function chooseAnswer(button, choice) {
+        if (answered) return;
+
+        answered = true;
+
+        const item = questions[current];
+        const correct = choice === item.word;
+
+        quiz.options.querySelectorAll("button").forEach((option) => {
+            option.disabled = true;
+
+            if (option.textContent === item.word) {
+                option.classList.add("correct");
+            }
+        });
+
+        if (correct) {
+            score += 10;
+            quiz.feedback.textContent = "✓ Correct! Great job!";
+            quiz.feedback.style.color = "#4ade80";
+        } else {
+            button.classList.add("wrong");
+            quiz.feedback.textContent =
+                `Not quite! The correct answer is ${item.word}.`;
+            quiz.feedback.style.color = "#fca5a5";
+        }
+
+        quiz.next.disabled = false;
+
+        quiz.progress.style.width =
+            `${((current + 1) / questions.length) * 100}%`;
+    }
+
+    function showHint() {
+        if (answered) return;
+
+        quiz.hint.textContent = `Hint: ${questions[current].hint}`;
+        quiz.hint.hidden = false;
+        quiz.hintButton.disabled = true;
+    }
+
+    function nextQuestion() {
+        if (!answered) return;
+
+        if (current < questions.length - 1) {
+            current++;
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quiz.game.hidden = true;
+        quiz.result.hidden = false;
+
+        quiz.progress.style.width = "100%";
+        quiz.progressText.textContent = "Quiz completed!";
+        quiz.finalScore.textContent = `${score} / 50`;
+
+        if (score > bestScore) {
+            bestScore = score;
+
+            try {
+                localStorage.setItem(storageKey, String(bestScore));
+            } catch (error) {
+                // The quiz can still work if storage is unavailable.
+            }
+        }
+
+        updateBest();
+
+        if (score === 50) {
+            quiz.resultTitle.textContent = "Perfect Score! 🎉";
+            quiz.resultMessage.textContent =
+                "Amazing! You answered all five questions correctly.";
+        } else if (score >= 30) {
+            quiz.resultTitle.textContent = "Great Work! 🌟";
+            quiz.resultMessage.textContent =
+                "You're making progress. Keep practising!";
+        } else {
+            quiz.resultTitle.textContent = "Keep Learning! 💪";
+            quiz.resultMessage.textContent =
+                "Review the signs and try the quiz again.";
+        }
+    }
+
+    get("sbStartQuiz").addEventListener("click", startQuiz);
+    quiz.hintButton.addEventListener("click", showHint);
+    quiz.next.addEventListener("click", nextQuestion);
+    get("sbRestartQuiz").addEventListener("click", startQuiz);
+
+    updateBest();
+})();
