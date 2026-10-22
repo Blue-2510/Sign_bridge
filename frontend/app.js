@@ -11,6 +11,8 @@
 
 const API_URL = "http://127.0.0.1:5000";
 
+let predictionLocked = false;
+let lockedPrediction = null;
 const STABLE_FRAMES = 6;
 const MIN_CONFIDENCE = 0.75;
 const COOLDOWN = 0.8;
@@ -34,6 +36,9 @@ let mediaPipeReady = false;
 
 let lastSign = null;
 let stableCount = 0;
+
+let signLocked = false;
+let lockedSign = null;
 
 let lastAddedSign = null;
 let lastAddedTime = 0;
@@ -495,6 +500,7 @@ function startPredictionLoop() {
     if (predictionRunning) {
         return;
     }
+
 
     predictionRunning = true;
 
@@ -1009,6 +1015,7 @@ function updateNoHand() {
         confidenceBar.style.width =
             "0%";
     }
+    
 
     stableCount = 0;
 
@@ -1023,6 +1030,10 @@ function updatePrediction(
     sign,
     confidence
 ) {
+
+    if (signLocked) {
+        return;
+    }
 
     const signElement =
         document.getElementById(
@@ -1156,6 +1167,9 @@ function processStableSign(
         stableCount >=
         STABLE_FRAMES
     ) {
+        // Lock the first stable sign.
+        signLocked = true;
+        lockedSign = sign;
 
         const now =
             Date.now() / 1000;
@@ -1234,6 +1248,9 @@ function updateSentence() {
 // ============================================================
 
 function clearTranslation() {
+
+    signLocked = false;
+    lockedSign = null;
 
     sentence = [];
 
@@ -1940,10 +1957,13 @@ let alphabetPracticeStream = null;
 let alphabetPracticeRunning = false;
 let alphabetPracticeHands = null;
 let alphabetPredictionBusy = false;
+let alphabetAnswerLocked = false;
 let alphabetLastPredictionTime = 0;
 
 let alphabetStableLetter = null;
 let alphabetStableCount = 0;
+
+let alphabetLockedLetter = null;
 
 const ALPHABET_PREDICTION_INTERVAL = 180;
 const ALPHABET_STABLE_REQUIRED = 4;
@@ -2098,6 +2118,12 @@ function createAlphabetGrid() {
 
 function selectAlphabetLetter(letter) {
     selectedAlphabetLetter = String(letter).toUpperCase();
+
+    alphabetAnswerLocked = false;
+    alphabetLockedLetter = null;
+
+    alphabetStableLetter = null;
+    alphabetStableCount = 0;
 
     // Update the reference image and letter labels
     updateAlphabetReference(selectedAlphabetLetter);
@@ -2576,6 +2602,10 @@ async function predictAlphabetLetter(
     features
 ) {
 
+    if (alphabetAnswerLocked) {
+        return;
+    }
+
     alphabetPredictionBusy = true;
 
     try {
@@ -2732,6 +2762,9 @@ async function predictAlphabetLetter(
         // LETTER CONFIRMED
         // ==========================================
 
+        alphabetAnswerLocked = true;
+        alphabetLockedLetter = selectedAlphabetLetter;
+
         learnedAlphabetLetters.add(
             selectedAlphabetLetter
         );
@@ -2863,6 +2896,18 @@ function updateAlphabetPracticeDisplay(
 // ============================================================
 
 function resetAlphabetPracticeUI() {
+
+    alphabetAnswerLocked = false;
+    alphabetLockedLetter = null;
+
+    alphabetStableLetter = null;
+    alphabetStableCount = 0;
+
+    wordAnswerLocked = false;
+
+    numberAnswerLocked = false;
+
+    alphabetAnswerLocked = false;
 
     const prediction =
         document.getElementById(
@@ -3029,6 +3074,8 @@ let learnedNumbers = new Set();
 let numberPracticeStream = null;
 
 let numberPracticeRunning = false;
+
+let numberAnswerLocked = false;
 
 let numberPracticeHands = null;
 
@@ -3476,6 +3523,8 @@ let learnedWords = new Set();
 let wordPracticeStream = null;
 
 let wordPracticeRunning = false;
+
+let wordAnswerLocked = false;
 
 let wordPracticeHands = null;
 
@@ -4074,6 +4123,7 @@ function onNumberPracticeResults(
 }
 
 
+
 // ============================================================
 // PREDICT NUMBER
 // ============================================================
@@ -4136,167 +4186,95 @@ function normalizeNumberPrediction(prediction) {
 
 
 // ============================================================
-// PREDICT NUMBER
-// ============================================================
+ // PREDICT NUMBER
+ // ============================================================
 
-async function predictNumberSign(
-    features
-) {
+async function predictNumberSign(features) {
 
-    if (numberPredictionBusy) {
-
+    if (numberAnswerLocked) {
         return;
-
     }
 
-    numberPredictionBusy =
-        true;
+    if (numberPredictionBusy) {
+        return;
+    }
+
+    numberPredictionBusy = true;
 
     try {
 
-        const response =
-            await fetch(
-                `${API_URL}/predict-number`,
-                {
+        const response = await fetch(
+            `${API_URL}/predict-number`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    features: features
+                })
+            }
+        );
 
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body: JSON.stringify({
-
-                        features:
-                            features
-
-                    })
-
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!response.ok) {
-
             throw new Error(
-                data.message ||
-                "Prediction failed."
+                data.message || "Prediction failed."
             );
-
         }
 
-
-        if (
-            data.status !==
-            "success"
-        ) {
-
+        if (data.status !== "success") {
             updateNumberPracticeDisplay(
                 "—",
                 0,
                 "The current model could not recognize this sign."
             );
-
             return;
-
         }
 
-
-        // Some models return ONE/TWO/THREE
-        // while others return 1/2/3.
-
-        const prediction =
-            normalizeNumberPrediction(
-                data.number
-            );
-
-
-        // Convert confidence to 0–100%.
-
-        const confidenceRaw =
-            Number(
-                data.confidence || 0
-            );
-
-
-        const percentage =
-            Math.max(
-                0,
-                Math.min(
-                    100,
-                    confidenceRaw <= 1
-                        ? confidenceRaw * 100
-                        : confidenceRaw
-                )
-            );
-
-
-        updateNumberPracticeDisplay(
-            prediction,
-            percentage,
-            "AI is analyzing your sign..."
+        // Normalize the predicted number.
+        const prediction = normalizeNumberPrediction(
+            data.number
         );
 
+        // Convert confidence to 0–100%.
+        const confidenceRaw = Number(data.confidence || 0);
 
-        // Current target number
+        const percentage = Math.max(
+            0,
+            Math.min(
+                100,
+                confidenceRaw <= 1
+                    ? confidenceRaw * 100
+                    : confidenceRaw
+            )
+        );
 
-        const target =
-            String(
-                lessonNumbers[
-                    selectedNumberIndex
-                ].value
-            );
+        // Get the current target number.
+        const target = String(
+            lessonNumbers[selectedNumberIndex].value
+        );
 
+        // Check whether the prediction matches the target.
+        if (prediction === target) {
 
-        // Check whether prediction matches
-        // selected number.
-
-        if (
-            prediction ===
-            target
-        ) {
-
-
-            if (
-                numberStablePrediction ===
-                prediction
-            ) {
-
+            if (numberStablePrediction === prediction) {
                 numberStableCount++;
-
+            } else {
+                numberStablePrediction = prediction;
+                numberStableCount = 1;
             }
-
-            else {
-
-                numberStablePrediction =
-                    prediction;
-
-                numberStableCount =
-                    1;
-
-            }
-
 
             if (
-                numberStableCount >=
-                NUMBER_STABLE_REQUIRED
+                numberStableCount >= NUMBER_STABLE_REQUIRED
             ) {
 
+                // Lock only after stable correct predictions.
+                numberAnswerLocked = true;
 
-                learnedNumbers.add(
-                    target
-                );
-
-
+                learnedNumbers.add(target);
                 updateNumbersProgress();
-
 
                 updateNumberPracticeDisplay(
                     prediction,
@@ -4304,23 +4282,23 @@ async function predictNumberSign(
                     "✓ Correct! Number learned! 🎉"
                 );
 
+                numberStableCount = 0;
 
-                numberStableCount =
-                    0;
+            } else {
+
+                updateNumberPracticeDisplay(
+                    prediction,
+                    percentage,
+                    "Correct number detected. Confirming stability..."
+                );
 
             }
 
-        }
+        } else {
 
-
-        else {
-
-            numberStablePrediction =
-                prediction;
-
-            numberStableCount =
-                0;
-
+            // Reset stability when the prediction is incorrect.
+            numberStablePrediction = prediction;
+            numberStableCount = 0;
 
             updateNumberPracticeDisplay(
                 prediction,
@@ -4330,16 +4308,12 @@ async function predictNumberSign(
 
         }
 
-    }
-
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Number prediction error:",
             error
         );
-
 
         updateNumberPracticeDisplay(
             "—",
@@ -4347,17 +4321,14 @@ async function predictNumberSign(
             "Unable to connect to the AI model."
         );
 
-    }
+    } finally {
 
-
-    finally {
-
-        numberPredictionBusy =
-            false;
+        numberPredictionBusy = false;
 
     }
 
 }
+
 
 
 // ============================================================
@@ -4736,6 +4707,10 @@ async function predictWordSign(
     features
 ) {
 
+    if (wordAnswerLocked) {
+        return;
+    }
+
     if (wordPredictionBusy) {
         return;
     }
@@ -4842,10 +4817,15 @@ async function predictWordSign(
                     1;
             }
 
+            
+
             if (
+                
                 wordStableCount >=
                 WORD_STABLE_REQUIRED
             ) {
+
+                wordAnswerLocked = true;
 
                 learnedWords.add(
                     target
@@ -5599,6 +5579,7 @@ if (document.readyState === "loading") {
 } else {
     initializeThemeToggle();
 }
+
 
 
 /* ===== SignBridge AI Interactive Quiz ===== */
